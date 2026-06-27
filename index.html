@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR-тренажёр · Память для экзамена</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e1117; --bg2:#141925; --panel:#1b2231; --panel2:#222b3d;
+  --line:#2c3650;
+  --card:#f4efe3; --card-ink:#211e17; --card-line:#ddd1b6;
+  --muted:#8b97ad; --muted2:#5a6680;
+  --text:#e9edf5; --accent:#e2533b; --accent-d:#c4422c;
+  --good:#46b29a; --good-d:#2f8e79; --gold:#dca54a; --blue:#5b8def; --violet:#9a7be0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.5;
+  min-height:100vh;
+  background-image:radial-gradient(1200px 600px at 80% -10%, #1a2335 0%, transparent 60%),
+                   radial-gradient(900px 500px at -10% 110%, #1c1726 0%, transparent 55%);
+}
+.wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+
+/* Header */
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.brand{display:flex;flex-direction:column;gap:4px}
+.kicker{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.01em;line-height:1.05}
+h1 .swap{color:var(--gold)}
+.sub{color:var(--muted);font-size:13px;max-width:46ch}
+.stat-mini{font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);text-align:right;white-space:nowrap}
+.stat-mini b{color:var(--text)}
+
+/* Tabs */
+nav.tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px;margin-bottom:22px;flex-wrap:wrap}
+.tab{flex:1 1 auto;min-width:120px;border:none;background:transparent;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;padding:11px 10px;border-radius:9px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.tab:hover{color:var(--text)}
+.tab.on{background:var(--accent);color:#fff;box-shadow:0 4px 14px -6px var(--accent)}
+.tab .t-ico{font-size:15px;line-height:1}
+
+/* Generic panel */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px}
+
+/* Filters */
+.filters{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.filt-row{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.filt-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);width:62px;flex:none}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:12px;font-weight:600;padding:6px 11px;border-radius:20px;cursor:pointer;transition:.13s;font-family:'Inter',sans-serif}
+.chip:hover{border-color:#46557a;color:var(--text)}
+.chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.chip.cat.on{color:#fff}
+.chip[data-cat="АВТОР"].on{background:var(--gold);border-color:var(--gold);color:#2a1f06}
+.chip[data-cat="ОПР"].on{background:var(--good);border-color:var(--good)}
+.chip[data-cat="СПИСОК"].on{background:var(--blue);border-color:var(--blue)}
+.chip[data-cat="РАЗЛИЧИЕ"].on{background:var(--accent);border-color:var(--accent)}
+.chip[data-cat="ЦИФРА"].on{background:var(--violet);border-color:var(--violet)}
+
+/* Flashcard */
+.fc-stage{perspective:1600px;margin-bottom:16px}
+.flashcard{position:relative;width:100%;min-height:300px;cursor:pointer;transition:transform .5s cubic-bezier(.4,.05,.2,1);transform-style:preserve-3d}
+.flashcard.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:18px;padding:30px 30px 56px;display:flex;flex-direction:column;
+  background:var(--card);color:var(--card-ink);
+  box-shadow:0 18px 40px -16px rgba(0,0,0,.6), 0 2px 0 0 #cfc3a6 inset;
+  background-image:repeating-linear-gradient(transparent, transparent 33px, var(--card-line) 33px, var(--card-line) 34px);
+  background-position:0 64px}
+.face.back{transform:rotateY(180deg)}
+.face::before{content:"";position:absolute;left:46px;top:0;bottom:0;width:1px;background:#e0b6ad;opacity:.6}
+.fc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;position:relative;z-index:1}
+.fc-cat{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.13em;padding:3px 9px;border-radius:5px;text-transform:uppercase}
+.fc-cat[data-cat="АВТОР"]{background:#f2dca0;color:#6b4e0c}
+.fc-cat[data-cat="ОПР"]{background:#bfe6dc;color:#1d6253}
+.fc-cat[data-cat="СПИСОК"]{background:#cbdcfb;color:#27488c}
+.fc-cat[data-cat="РАЗЛИЧИЕ"]{background:#f6cfc6;color:#9a3925}
+.fc-cat[data-cat="ЦИФРА"]{background:#ddd0f5;color:#5a3da0}
+.fc-lec{font-family:'Space Mono',monospace;font-size:11px;color:#9a8e72;font-weight:700}
+.fc-q{font-family:'Space Grotesk',sans-serif;font-size:21px;font-weight:600;line-height:1.32;position:relative;z-index:1;display:flex;align-items:center;flex:1}
+.fc-a{font-size:16px;line-height:1.55;position:relative;z-index:1;display:flex;align-items:center;flex:1;font-weight:450}
+.fc-hint{position:absolute;left:0;right:0;bottom:18px;text-align:center;font-family:'Space Mono',monospace;font-size:11px;color:#a89a7c;z-index:1}
+.fc-side{position:absolute;top:30px;right:28px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:#bdb091;writing-mode:vertical-rl;text-transform:uppercase}
+
+/* Flashcard controls */
+.fc-bar{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.nav-btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);font-size:14px;font-weight:600;padding:11px 18px;border-radius:11px;cursor:pointer;transition:.13s;font-family:'Space Grotesk',sans-serif;display:inline-flex;align-items:center;gap:8px}
+.nav-btn:hover{border-color:#46557a;background:#283449}
+.nav-btn:disabled{opacity:.35;cursor:not-allowed}
+.know-row{display:flex;gap:8px}
+.know-btn{flex:1;border:1px solid var(--line);background:var(--panel);padding:12px;border-radius:11px;cursor:pointer;font-weight:600;font-size:13px;font-family:'Space Grotesk',sans-serif;transition:.13s;color:var(--muted)}
+.know-btn.know{}
+.know-btn.know:hover,.know-btn.know.act{background:var(--good);border-color:var(--good);color:#06231d}
+.know-btn.review:hover,.know-btn.review.act{background:var(--accent);border-color:var(--accent);color:#fff}
+.counter{font-family:'Space Mono',monospace;font-size:13px;color:var(--muted);text-align:center;min-width:60px}
+.counter b{color:var(--text)}
+.util-row{display:flex;gap:8px;margin-top:12px;justify-content:center;flex-wrap:wrap}
+.util-btn{background:transparent;border:1px solid var(--line);color:var(--muted);font-size:12px;padding:7px 13px;border-radius:9px;cursor:pointer;font-weight:600;transition:.13s}
+.util-btn:hover{color:var(--text);border-color:#46557a}
+
+/* Quiz */
+.q-card{padding:24px}
+.q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)}
+.q-type{padding:3px 9px;border-radius:5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:10px}
+.q-type.single{background:#243a5a;color:#a9c6ff}
+.q-type.multi{background:#3a2a52;color:#d3b8ff}
+.q-text{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;line-height:1.35;margin-bottom:18px}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{display:flex;align-items:flex-start;gap:12px;border:1.5px solid var(--line);background:var(--bg2);border-radius:12px;padding:13px 15px;cursor:pointer;transition:.12s;font-size:15px}
+.opt:hover{border-color:#46557a;background:#1b2333}
+.opt .box{flex:none;width:22px;height:22px;border:2px solid #46557a;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:transparent;transition:.12s;margin-top:1px}
+.opt.single .box{border-radius:50%}
+.opt.multi .box{border-radius:6px}
+.opt.sel{border-color:var(--blue);background:#1a2740}
+.opt.sel .box{background:var(--blue);border-color:var(--blue);color:#fff}
+.opt .lett{flex:none;font-family:'Space Mono',monospace;font-weight:700;color:var(--muted)}
+.opt.correct{border-color:var(--good);background:#15302a}
+.opt.correct .box{background:var(--good);border-color:var(--good);color:#06231d}
+.opt.wrong{border-color:var(--accent);background:#33191a}
+.opt.wrong .box{background:var(--accent);border-color:var(--accent);color:#fff}
+.opt.locked{cursor:default;pointer-events:none}
+.q-foot{margin-top:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn-primary{background:var(--accent);border:none;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;padding:12px 24px;border-radius:11px;cursor:pointer;transition:.13s}
+.btn-primary:hover{background:var(--accent-d)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-ghost{background:var(--panel2);border:1px solid var(--line);color:var(--text);font-weight:600;font-size:14px;padding:12px 18px;border-radius:11px;cursor:pointer;font-family:'Space Grotesk',sans-serif}
+.btn-ghost:hover{background:#283449}
+.verdict{padding:13px 16px;border-radius:11px;font-size:14px;line-height:1.5;margin-top:16px}
+.verdict.ok{background:var(--good-soft,#15302a);border:1px solid var(--good);color:#bfeee2}
+.verdict.no{background:#2c1719;border:1px solid var(--accent);color:#f6c9c0}
+.verdict b{font-family:'Space Grotesk',sans-serif}
+.q-progress{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:18px}
+.q-progress span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .3s}
+
+/* Exam intro / results */
+.center-card{padding:34px 28px;text-align:center}
+.center-card h2{font-family:'Space Grotesk',sans-serif;font-size:23px;margin-bottom:10px}
+.center-card p{color:var(--muted);font-size:14px;max-width:48ch;margin:0 auto 8px}
+.exam-facts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:22px 0}
+.fact{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px 18px;min-width:96px}
+.fact .n{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:var(--gold)}
+.fact .l{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:.06em;margin-top:2px}
+.timer{font-family:'Space Mono',monospace;font-weight:700;font-size:15px;padding:4px 10px;border-radius:7px;background:var(--bg2);border:1px solid var(--line)}
+.timer.warn{color:var(--accent);border-color:var(--accent);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.55}}
+.score-ring{font-family:'Space Grotesk',sans-serif;font-size:46px;font-weight:700;margin:6px 0}
+.score-ring small{font-size:20px;color:var(--muted)}
+.grade{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;padding:6px 18px;border-radius:99px;display:inline-block;margin-top:6px}
+.byLec{margin:22px 0;text-align:left}
+.byLec .row{display:flex;align-items:center;gap:12px;margin-bottom:8px;font-size:13px}
+.byLec .ln{width:128px;flex:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:11px}
+.byLec .track{flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.byLec .fill{height:100%;border-radius:99px}
+.byLec .sc{width:46px;text-align:right;font-family:'Space Mono',monospace;font-size:12px;color:var(--text)}
+
+/* Cheat sheet */
+.cheat-lead{color:var(--muted);font-size:13px;margin-bottom:16px}
+.acc{border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:10px;background:var(--panel)}
+.acc-head{width:100%;text-align:left;background:transparent;border:none;color:var(--text);padding:15px 18px;cursor:pointer;display:flex;align-items:center;gap:12px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px}
+.acc-head:hover{background:var(--panel2)}
+.acc-num{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:#2a1c1b;border:1px solid #44282423;padding:3px 7px;border-radius:6px;font-weight:700;flex:none}
+.acc-head .arr{margin-left:auto;transition:.2s;color:var(--muted);font-size:13px}
+.acc.open .acc-head .arr{transform:rotate(90deg)}
+.acc-body{display:none;padding:4px 18px 18px;border-top:1px solid var(--line)}
+.acc.open .acc-body{display:block}
+.acc-body h4{font-family:'Space Grotesk',sans-serif;font-size:13px;color:var(--gold);margin:14px 0 6px;letter-spacing:.02em}
+.acc-body ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+.acc-body li{font-size:13.5px;line-height:1.5;padding-left:16px;position:relative;color:#cdd5e4}
+.acc-body li::before{content:"›";position:absolute;left:0;color:var(--accent);font-weight:700}
+.acc-body li b{color:#fff;font-weight:600}
+.tbl{width:100%;border-collapse:collapse;margin-top:6px;font-size:13px}
+.tbl th{text-align:left;font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:7px 10px;border-bottom:1px solid var(--line)}
+.tbl td{padding:8px 10px;border-bottom:1px solid #232c3e;vertical-align:top}
+.tbl td:first-child{color:var(--gold);font-weight:600;white-space:nowrap;font-family:'Space Grotesk',sans-serif}
+.tbl tr:hover td{background:var(--bg2)}
+
+.foot{text-align:center;color:var(--muted2,#5a6680);font-size:11px;font-family:'Space Mono',monospace;margin-top:34px;letter-spacing:.04em}
+.hide{display:none!important}
+
+@media (max-width:560px){
+  h1{font-size:22px}
+  .fc-q{font-size:18px}.fc-a{font-size:15px}
+  .face{padding:24px 22px 52px}
+  .tab{min-width:0;font-size:13px;padding:10px 6px}
+  .tab .t-lab{display:none}
+  .tab .t-ico{font-size:18px}
+  .know-btn{font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  .flashcard{transition:none}
+  *{animation:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="kicker">Управление человеческими ресурсами</div>
+      <h1>HR-тренажёр <span class="swap">↔</span> память для&nbsp;экзамена</h1>
+      <div class="sub">30 вопросов · 30 минут · компьютерный класс. Учим активным вспоминанием: переворачивай карточку, проверяй себя в тесте, прогоняй экзамен на время.</div>
+    </div>
+    <div class="stat-mini" id="globalStat"></div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab on" data-mode="cards"><span class="t-ico">🂠</span><span class="t-lab">Карточки</span></button>
+    <button class="tab" data-mode="quiz"><span class="t-ico">✎</span><span class="t-lab">Тренировка</span></button>
+    <button class="tab" data-mode="exam"><span class="t-ico">⏱</span><span class="t-lab">Экзамен</span></button>
+    <button class="tab" data-mode="cheat"><span class="t-ico">▦</span><span class="t-lab">Шпаргалка</span></button>
+  </nav>
+
+  <!-- CARDS -->
+  <section id="m-cards">
+    <div class="filters">
+      <div class="filt-row"><span class="filt-label">Лекция</span><div id="cardLecChips" class="filt-row" style="flex:1"></div></div>
+      <div class="filt-row"><span class="filt-label">Тип</span><div id="cardCatChips" class="filt-row" style="flex:1"></div></div>
+    </div>
+    <div class="fc-stage">
+      <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Карточка, нажмите чтобы перевернуть">
+        <div class="face front">
+          <div class="fc-top"><span class="fc-cat" id="fcCatF"></span><span class="fc-lec" id="fcLecF"></span></div>
+          <div class="fc-q" id="fcQ"></div>
+          <div class="fc-hint">нажми / пробел — показать ответ</div>
+        </div>
+        <div class="face back">
+          <div class="fc-top"><span class="fc-cat" id="fcCatB"></span><span class="fc-lec" id="fcLecB"></span></div>
+          <div class="fc-a" id="fcA"></div>
+          <div class="fc-hint">нажми — скрыть · ← → листать</div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-bar">
+      <button class="nav-btn" id="fcPrev">← Назад</button>
+      <span class="counter" id="fcCount"></span>
+      <button class="nav-btn" id="fcNext">Вперёд →</button>
+    </div>
+    <div class="know-row" style="margin-top:12px">
+      <button class="know-btn review" id="fcReview">↻ Повторить</button>
+      <button class="know-btn know" id="fcKnow">✓ Знаю</button>
+    </div>
+    <div class="util-row">
+      <button class="util-btn" id="fcShuffle">⤮ Перемешать</button>
+      <button class="util-btn" id="fcOnlyReview">Только «повторить»</button>
+      <button class="util-btn" id="fcReset">Сбросить прогресс</button>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="m-quiz" class="hide">
+    <div class="filters">
+      <div class="filt-row"><span class="filt-label">Лекция</span><div id="quizLecChips" class="filt-row" style="flex:1"></div></div>
+    </div>
+    <div class="panel q-card" id="quizCard"></div>
+  </section>
+
+  <!-- EXAM -->
+  <section id="m-exam" class="hide">
+    <div class="panel" id="examBox"></div>
+  </section>
+
+  <!-- CHEAT -->
+  <section id="m-cheat" class="hide">
+    <p class="cheat-lead">Сжатый конспект по лекциям + главная таблица «автор ↔ модель». Раскрывай нужный блок.</p>
+    <div id="cheatList"></div>
+  </section>
+
+  <div class="foot">Сделано из конспекта «Подготовка к экзамену HR» · прогресс хранится только в этой вкладке</div>
+</div>
+
+<script>
+/* ============== ДАННЫЕ: КАРТОЧКИ ============== */
+const CATS = ["АВТОР","ОПР","СПИСОК","РАЗЛИЧИЕ","ЦИФРА"];
+const CATLBL = {"АВТОР":"Автор","ОПР":"Определение","СПИСОК":"Список","РАЗЛИЧИЕ":"Различие","ЦИФРА":"Цифры/факты"};
+const CARDS = [
+ {l:1,c:'ОПР',q:'Что такое УЧР по Гэри Десслеру?',a:'Процесс подбора, подготовки, оценки и вознаграждения работников + управление трудовыми отношениями.'},
+ {l:1,c:'АВТОР',q:'Кто описал 10 ролей менеджера (3 группы)?',a:'Г. Минцберг. Группы: межличностные, информационные, связанные с решениями.'},
+ {l:1,c:'АВТОР',q:'Кто сказал, что менеджмент превращает «толпу» в целенаправленную группу? (и автор MBO)',a:'П. Друкер.'},
+ {l:1,c:'СПИСОК',q:'3 признака организации',a:'1) минимум 2 человека; 2) минимум 1 общая цель; 3) сознательная деятельность для её достижения.'},
+ {l:1,c:'РАЗЛИЧИЕ',q:'Горизонтальное vs вертикальное разделение труда',a:'Горизонтальное — разбивка работы на компоненты. Вертикальное — отделение координации (менеджмента) от исполнения.'},
+ {l:1,c:'АВТОР',q:'Школы управления: кто что основал?',a:'Тейлор — научное управление; Файоль — административное; Мэйо — человеческих отношений (Хоторн); количественный подход — школа науки управления.'},
+ {l:1,c:'СПИСОК',q:'3 современных подхода к управлению',a:'Процессный (функции = взаимосвязанные процессы), системный (организация = открытая система), ситуативный (эффективность зависит от ситуации).'},
+ {l:1,c:'СПИСОК',q:'5 моделей управления персоналом + примеры',a:'«Рынок труда» (инвестбанки); «Человеческий капитал» (японские компании); «Партнёрская» (Зап. Европа); «Академия» (Big 4, вузы); «Российская» (патернализм).'},
+
+ {l:2,c:'ЦИФРА',q:'Когда возникают трудовые отношения?',a:'С момента подписания (заключения) трудового договора.'},
+ {l:2,c:'ЦИФРА',q:'Максимальный срок срочного трудового договора',a:'Не более 5 лет (Ст. 58 ТК РФ).'},
+ {l:2,c:'ЦИФРА',q:'Продолжительность ежегодного отпуска',a:'28 календарных дней.'},
+ {l:2,c:'ЦИФРА',q:'Рабочая неделя / непрерывный отдых / обед — нормы',a:'Неделя — 40 ч; непрерывный еженедельный отдых — не менее 42 ч; перерыв на обед — от 30 мин до 2 ч.'},
+ {l:2,c:'ЦИФРА',q:'За сколько предупреждают о сокращении? Что выплачивают?',a:'Не менее чем за 2 месяца под роспись + выходное пособие (средний месячный заработок).'},
+ {l:2,c:'СПИСОК',q:'Дисциплинарные взыскания (Ст. 192) — только какие?',a:'Только три: замечание, выговор, увольнение.'},
+ {l:2,c:'СПИСОК',q:'Поощрения по Ст. 191',a:'Благодарность, премия, ценный подарок, почётная грамота, звание «Лучший по профессии».'},
+ {l:2,c:'СПИСОК',q:'Источники трудового права (по убыванию силы)',a:'Конвенции МОТ → Конституция РФ → ТК РФ (№197-ФЗ) → иные ФЗ → подзаконные акты → акты субъектов РФ.'},
+ {l:2,c:'РАЗЛИЧИЕ',q:'Трудовой договор vs ГПХ',a:'Трудовой: должность/трудовая функция, соцгарантии, подчинение ПВТР. ГПХ: предмет — конкретный результат, стороны равны («заказчик-исполнитель»), нет подчинения распорядку.'},
+ {l:2,c:'СПИСОК',q:'Кому НЕ устанавливается испытание?',a:'Беременным и женщинам с детьми до 1,5 лет; лицам до 18; молодым специалистам (год после учёбы); избранным на выборную должность; приглашённым в порядке перевода.'},
+ {l:2,c:'СПИСОК',q:'Преимущественное право при сокращении (Ст. 179)',a:'Сначала — высокая производительность/квалификация; при равенстве — семейные (с иждивенцами), лица с трудовым увечьем на этом производстве, инвалиды ВОВ.'},
+
+ {l:3,c:'ОПР',q:'Что такое стратегическое УЧР?',a:'Управление людьми для достижения целей организации через интегрированные с бизнесом HR-стратегии; человеческий капитал — главный источник конкурентного преимущества.'},
+ {l:3,c:'АВТОР',q:'Трейси и Вирсема — что придумали?',a:'3 ценностные дисциплины: операционная эффективность, лидерство в продукте, близость к клиенту.'},
+ {l:3,c:'АВТОР',q:'Гарвардская модель — результат «4С»?',a:'Commitment, Competence, Cost-effectiveness, Congruence. (приверженность, компетентность, экономич. эффективность, согласованность)'},
+ {l:3,c:'АВТОР',q:'AMO-модель — формула?',a:'Эффективность = f(Abilities, Motivation, Opportunities) — способности, мотивация, возможности.'},
+ {l:3,c:'АВТОР',q:'Модель 7-S — чья и из чего состоит?',a:'Маккинси. «Жёсткие»: стратегия, структура, системы. «Мягкие»: стиль, staff, skills, shared values.'},
+ {l:3,c:'СПИСОК',q:'Подходы к разработке HR-стратегии + примеры',a:'Best Fit (IKEA), Best Practices (Microsoft), RBV (Apple), Институциональный (Unilever), Системный (P&G).'},
+ {l:3,c:'РАЗЛИЧИЕ',q:'Два базовых подхода к персоналу',a:'Как к расходному материалу (минимум затрат/обучения) vs как к стратегическому ресурсу (инвестиции, удержание талантов, вовлечённость).'},
+
+ {l:4,c:'АВТОР',q:'Модель Ульриха — 3 элемента HR-службы',a:'Центр обслуживания (Shared Services), Центры экспертизы (CoE), HR-бизнес-партнёры (HR BP).'},
+ {l:4,c:'СПИСОК',q:'4 роли HR по Ульриху',a:'Стратегический партнёр, администратор процессов, агент изменений, защитник интересов сотрудников.'},
+ {l:4,c:'СПИСОК',q:'4 составляющие ССП (BSC)',a:'Финансовая, клиентская, внутренние бизнес-процессы, обучение и развитие. Логика: обучение — основа для финансов.'},
+ {l:4,c:'СПИСОК',q:'4 вида компетенций',a:'Профессиональные (функциональные), лидерские (управленческие), личностные, корпоративные (общие).'},
+ {l:4,c:'СПИСОК',q:'Уровни развития компетенций',a:'Начальный → средний → продвинутый → мастерский.'},
+ {l:4,c:'АВТОР',q:'КПЭ HR-службы — чья модель и из чего?',a:'Институт Саратоги: Staffing, Efficiency, Equity, Productivity.'},
+ {l:4,c:'ОПР',q:'Что такое компетенция?',a:'Совокупность знаний, умений, навыков и поведенческих проявлений для успешного выполнения задач.'},
+ {l:4,c:'СПИСОК',q:'IT-системы HR-аналитики',a:'BI (анализ данных), ERP (ресурсы предприятия), task-менеджеры (задачи), HRMS/HRIS (автоматизация HR).'},
+
+ {l:5,c:'СПИСОК',q:'5 этапов жизненного цикла сотрудника',a:'Привлечение и найм → адаптация (онбординг) → развитие и обучение → мотивация и удержание → выход (offboarding).'},
+ {l:5,c:'СПИСОК',q:'4 вида адаптации',a:'Профессиональная, социально-психологическая, психофизиологическая, организационно-административная.'},
+ {l:5,c:'СПИСОК',q:'Роли в адаптации',a:'Buddy (куратор) — социальная адаптация; Наставник — профнавыки; HR — организация/контроль; Руководитель — задачи/эффективность.'},
+ {l:5,c:'ОПР',q:'EVP — что это?',a:'Employee Value Proposition — ценностное предложение работодателя. Внешнее привлекает новых, внутреннее удерживает текущих.'},
+ {l:5,c:'ОПР',q:'HR-бренд и EJM',a:'HR-бренд — представление кандидатов/сотрудников о компании. EJM (Employee Journey Map) — карта пути сотрудника по всем этапам.'},
+ {l:5,c:'СПИСОК',q:'Ошибки интервью',a:'Стереотипизация, эффект ореола (первое впечатление доминирует), вопросы не по компетенциям, отсутствие структуры.'},
+ {l:5,c:'СПИСОК',q:'Методы отбора (по нарастанию)',a:'Анализ резюме → интервью → тестирование → ассессмент-центр → геймификация.'},
+ {l:5,c:'ОПР',q:'Headhunting / сорсинг',a:'Headhunting — прямой поиск кандидатов. Сорсинг — Boolean Search по базам данных.'},
+
+ {l:6,c:'СПИСОК',q:'3 цели оценки персонала',a:'Административная (решения о переводе/повышении), информационная (объективные данные), мотивационная (основание для мотивации).'},
+ {l:6,c:'РАЗЛИЧИЕ',q:'Оценка 360° vs 180°',a:'360° — руководитель + коллеги + подчинённые + самооценка. 180° — только руководитель + самооценка.'},
+ {l:6,c:'РАЗЛИЧИЕ',q:'OKR vs КПЭ',a:'OKR — гибкий Agile-фреймворк, НЕ привязан к бонусам (для амбициозных целей). КПЭ — привязаны к бонусам.'},
+ {l:6,c:'СПИСОК',q:'Метод обратной связи SBI',a:'Situation (ситуация) → Behavior (поведение) → Impact (воздействие).'},
+ {l:6,c:'РАЗЛИЧИЕ',q:'Методы оценки: что оценивают?',a:'По целям/КПЭ/OKR — результативность; 360° и самооценка — компетенции+результативность; тестирование и ассессмент-центр — компетенции.'},
+ {l:6,c:'ОПР',q:'ИПР — что это?',a:'Индивидуальный план развития: документ сотрудника и руководителя по развитию компетенций; цели — по SMART.'},
+
+ {l:7,c:'ОПР',q:'Андрагогика',a:'Наука об обучении взрослых. Принципы: осознанность, практическая направленность, опора на опыт, актуальность, равенство.'},
+ {l:7,c:'АВТОР',q:'Модель оценки обучения Киркпатрика — 4 уровня',a:'1) Реакция (удовлетворённость), 2) Усвоение (знания/навыки), 3) Поведение (на работе), 4) Результаты (бизнес-показатели).'},
+ {l:7,c:'АВТОР',q:'Кто добавил 5-й уровень (ROI) к Киркпатрику?',a:'Дж. Филипс — возврат на инвестиции в обучение.'},
+ {l:7,c:'ОПР',q:'GAP-анализ компетенций',a:'Оценка разрыва между текущим и желаемым состоянием: целевое → текущее → разрыв (GAP) → план действий.'},
+ {l:7,c:'РАЗЛИЧИЕ',q:'Корпоративный университет vs учебный центр',a:'КУ — проактивен, фокус на стратегии и ключевых сотрудниках. УЦ — реактивен, обучение под текущие задачи.'},
+ {l:7,c:'СПИСОК',q:'Формы обучения',a:'Очное (с/без отрыва от работы), дистанционное (e-learning), внутреннее, внешнее, гибридное (blended learning).'},
+
+ {l:8,c:'РАЗЛИЧИЕ',q:'Управление талантами vs кадровый резерв',a:'Таланты: привлечь/развить/удержать высокий потенциал, от рядовых до топов, долгосрочно. Резерв: подготовка к ключевым руководящим позициям (преемственность).'},
+ {l:8,c:'АВТОР',q:'Структура таланта по Рензулли (3 компонента)',a:'Способности выше среднего + творчество + преданность делу.'},
+ {l:8,c:'АВТОР',q:'«Война за таланты» — чья концепция?',a:'McKinsey.'},
+ {l:8,c:'ОПР',q:'Грейд + ключевой принцип грейдирования',a:'Грейд — ранговая категория должности по сложности/ответственности/значимости. Принцип: оценивается должность, а не человек.'},
+ {l:8,c:'АВТОР',q:'Методы грейдирования',a:'Hay Group (знания, решение проблем, ответственность), Mercer (сравнение с рынком), факторно-балльный.'},
+ {l:8,c:'СПИСОК',q:'Подходы к кадровому резерву',a:'Открытый vs закрытый (степень информирования); конкурентный vs целевой (соревнование vs развитие под позиции). Оценка — 9-box grid.'},
+ {l:8,c:'РАЗЛИЧИЕ',q:'Карьерные траектории',a:'Вертикальная — рост по иерархии. Горизонтальная — углубление экспертизы в смежных областях.'},
+
+ {l:9,c:'ОПР',q:'Потребность / мотив / стимул / мотивация',a:'Потребность — нужда в чём-либо. Мотив — потребность как конкретная цель. Стимул — внешний фактор. Мотивация — процесс побуждения.'},
+ {l:9,c:'АВТОР',q:'Пирамида Маслоу — 5 уровней снизу вверх',a:'Физиологические → безопасность → социальные → признание/уважение → самореализация.'},
+ {l:9,c:'АВТОР',q:'Двухфакторная теория Герцберга',a:'Гигиенические факторы (зарплата, условия) устраняют недовольство, но НЕ мотивируют. Мотивирующие (достижения, признание, рост) — дают мотивацию.'},
+ {l:9,c:'АВТОР',q:'Теория МакКлелланда — 3 потребности',a:'Власть, достижение, принадлежность. У каждого преобладает один мотив.'},
+ {l:9,c:'АВТОР',q:'Теория ожиданий Врума',a:'Мотивация = Ожидание × Инструментальность × Валентность. Если хоть один множитель = 0 — мотивации нет.'},
+ {l:9,c:'АВТОР',q:'Теория справедливости — автор и суть',a:'Дж. Адамс: сотрудник сравнивает «усилие/вознаграждение» с коллегами; зависит от субъективного восприятия справедливости.'},
+ {l:9,c:'АВТОР',q:'Теория самодетерминации Деси–Райана — 3 потребности',a:'Автономия, компетентность, связанность. Внешняя мотивация (деньги) слабее в долгосрочной перспективе.'},
+ {l:9,c:'АВТОР',q:'«Кнут и пряник» — автор и виды',a:'Б. Скиннер (оперантное научение): + подкрепление (премия), − подкрепление (снять контроль), + наказание (выговор), − наказание (лишить бонуса).'},
+ {l:9,c:'ОПР',q:'Эффект Хоторна',a:'Люди работают лучше, когда чувствуют внимание к себе и важность своего труда (эксперимент Мэйо).'},
+
+ {l:10,c:'СПИСОК',q:'Материальная мотивация — схемы',a:'Фиксированная (оклад), бонусная, комиссионная, премиальная, долгосрочные программы (опционы, акции).'},
+ {l:10,c:'СПИСОК',q:'Кого удерживать в первую очередь?',a:'Ключевые кадры → перспективные → эффективные исполнители → «балласт» (заменять постепенно).'},
+ {l:10,c:'СПИСОК',q:'Основные причины ухода',a:'Низкая оплата, плохие отношения с коллективом, плохие отношения с руководителем, нет карьерного роста, нет признания.'},
+ {l:10,c:'ОПР',q:'ROI мотивационной программы — формула',a:'(Прибыль от программы − Затраты) / Затраты × 100%.'},
+ {l:10,c:'ОПР',q:'Текучесть кадров — как измеряется?',a:'Процент увольнений за определённый период.'},
+
+ {l:11,c:'РАЗЛИЧИЕ',q:'Цифровизация vs автоматизация',a:'Автоматизация — упрощение отдельных функций. Цифровизация — комплексное изменение HR: аналитика, предиктивные модели, интеграция с бизнес-целями.'},
+ {l:11,c:'ОПР',q:'HRIS',a:'Human Resource Information System — платформа управления кадровыми процессами. Примеры: 1С:ЗУП, БОСС-Кадровик.'},
+ {l:11,c:'ОПР',q:'LMS',a:'Learning Management System — система управления обучением (материалы, прогресс, тесты). Примеры: iSpring Learn, GetCourse.'},
+ {l:11,c:'ЦИФРА',q:'Закон о защите персональных данных в РФ',a:'ФЗ-152.'},
+ {l:11,c:'СПИСОК',q:'Кому подходит Big Data?',a:'Крупным компаниям (1000+): РЖД, Сбер, Яндекс. НЕ подходит малому бизнесу (<300) и компаниям без источника данных.'},
+
+ {l:12,c:'ОПР',q:'ESG',a:'Environmental (экология), Social (соц. ответственность), Governance (управление/прозрачность).'},
+ {l:12,c:'РАЗЛИЧИЕ',q:'Blue Collar vs New Collar',a:'Blue — рабочие профессии (сварщики, ЧПУ). New — технологические БЕЗ высшего образования (разработчики, аналитики), за 6–12 мес. Оценивают навыки, а не дипломы.'},
+ {l:12,c:'ОПР',q:'Silver Staff',a:'Тренд старения рабочей силы; возрастных сотрудников ценят за опыт, лояльность, роль наставников.'},
+ {l:12,c:'СПИСОК',q:'4 поколения в команде',a:'Бэби-бумеры (55+) → поколение X (40–55) → поколение Y (25–40) → поколение Z (18–25).'},
+ {l:12,c:'ОПР',q:'eNPS / ESAT',a:'eNPS — готовность сотрудников рекомендовать компанию. ESAT — удовлетворённость работой.'},
+ {l:12,c:'СПИСОК',q:'8 навыков будущего',a:'Адаптивность, системное мышление, EQ, целеустремлённость, командность, антихрупкость, креативность, цифровая грамотность.'},
+ {l:12,c:'АВТОР',q:'Циклы Кондратьева + NBIC',a:'Волны технологических укладов (40–60 лет). Текущая 6-я волна — на NBIC-конвергенции (нано-, био-, инфо-, когнитивные технологии).'},
+ {l:12,c:'ОПР',q:'Employee Experience (EX)',a:'Управление взаимодействием сотрудника с компанией на всех этапах — от найма до выхода и alumni-программ.'}
+];
+CARDS.forEach((c,i)=>c.id=i);
+
+/* ============== ДАННЫЕ: ТЕСТ ============== */
+// correct = массив индексов правильных вариантов
+const QUIZ = [
+ // ====== Лекция 1: Теоретические основы УЧР ======
+ {l:1,t:'single',q:'Кто определил УЧР как процесс подбора, подготовки, оценки и вознаграждения работников и управления их трудовыми отношениями?',o:['Г. Минцберг','Гэри Десслер','П. Друкер','А. Файоль'],correct:[1]},
+ {l:1,t:'multi',q:'Какие признаки относятся к организации?',o:['Минимум 2 человека','Минимум 1 общая цель','Обязательное наличие прибыли','Сознательная деятельность для достижения цели'],correct:[0,1,3]},
+ {l:1,t:'single',q:'Минимальное количество людей в организации:',o:['1','2','3','5'],correct:[1]},
+ {l:1,t:'single',q:'Сколько ролей менеджера выделил Г. Минцберг?',o:['5','7','10','12'],correct:[2]},
+ {l:1,t:'multi',q:'На какие группы делятся роли менеджера по Минцбергу?',o:['Межличностные','Информационные','Финансовые','Связанные с решениями'],correct:[0,1,3]},
+ {l:1,t:'single',q:'Какие функции включает менеджмент как процесс?',o:['Планирование, организация, мотивация, контроль','Найм, оценка, оплата, увольнение','Анализ, синтез, прогноз, отчёт','Поиск, отбор, адаптация, развитие'],correct:[0]},
+ {l:1,t:'single',q:'Кто является автором школы научного управления?',o:['А. Файоль','Ф. Тейлор','Э. Мэйо','П. Друкер'],correct:[1]},
+ {l:1,t:'single',q:'Кто является автором школы административного управления?',o:['Ф. Тейлор','А. Файоль','Э. Мэйо','А. Маслоу'],correct:[1]},
+ {l:1,t:'single',q:'Хоторнский эксперимент связан с именем:',o:['Ф. Тейлора','Э. Мэйо','А. Маслоу','В. Врума'],correct:[1]},
+ {l:1,t:'single',q:'Кто сказал, что менеджмент превращает неорганизованную толпу в целенаправленную группу?',o:['Г. Минцберг','П. Друкер','А. Файоль','Г. Десслер'],correct:[1]},
+ {l:1,t:'single',q:'Подход, рассматривающий организацию как открытую систему взаимозависимых частей:',o:['Процессный','Системный','Ситуативный','Количественный'],correct:[1]},
+ {l:1,t:'single',q:'Подход, при котором эффективность управления зависит от конкретной ситуации:',o:['Процессный','Системный','Ситуативный','Количественный'],correct:[2]},
+ {l:1,t:'multi',q:'Какие подходы относятся к современным подходам в управлении?',o:['Процессный','Системный','Ситуативный','Директивный'],correct:[0,1,2]},
+ {l:1,t:'single',q:'Модель управления персоналом «Академия» характерна для:',o:['Инвестбанков','Big 4 и университетов','Японских компаний','Госсектора'],correct:[1]},
+ {l:1,t:'single',q:'Модель управления «Рынок труда» (краткосрочный найм, минимум обучения) — это пример:',o:['Японских компаний','Инвестиционных банков','Университетов','Западноевропейского бизнеса'],correct:[1]},
+ {l:1,t:'single',q:'Модель «Человеческий капитал» (ядро + временный персонал, инвестиции в обучение) характерна для:',o:['Инвестбанков','Японских компаний','Big 4','Госсектора'],correct:[1]},
+ {l:1,t:'single',q:'Вертикальное разделение труда — это:',o:['Разбивка работы на компоненты','Отделение координации (менеджмента) от исполнения','Деление по отделам','Сменный график'],correct:[1]},
+ {l:1,t:'multi',q:'Что относится к ресурсам организации?',o:['Люди','Капитал','Технологии','Конкуренты'],correct:[0,1,2]},
+ {l:1,t:'single',q:'Что считается основной причиной развития науки управления и отсутствия абсолютных правил?',o:['Рост населения','Изменчивость внешней среды','Снижение зарплат','Глобальное потепление'],correct:[1]},
+ {l:1,t:'single',q:'Какой фактор относится к ПРЯМЫМ факторам внешней среды?',o:['Экономические условия','Поставщики и конкуренты','Политика','Технологии'],correct:[1]},
+ {l:1,t:'single',q:'Стратегическая роль УЧР предполагает, что менеджером по управлению персоналом является:',o:['Только HR-директор','Только генеральный директор','Каждый менеджер','Только наставник'],correct:[2]},
+
+ // ====== Лекция 2: Трудовое право РФ ======
+ {l:2,t:'single',q:'Согласно трудовому праву РФ, трудовые отношения возникают:',o:['После прохождения испытательного срока','С момента подписания трудового договора','После начала фактического выполнения работы','С момента оформления личной карточки'],correct:[1]},
+ {l:2,t:'single',q:'Максимальный срок срочного трудового договора:',o:['1 год','3 года','5 лет','10 лет'],correct:[2]},
+ {l:2,t:'single',q:'Продолжительность ежегодного основного оплачиваемого отпуска:',o:['14 дней','21 день','28 дней','30 дней'],correct:[2]},
+ {l:2,t:'single',q:'Нормальная продолжительность рабочей недели:',o:['36 часов','40 часов','42 часа','48 часов'],correct:[1]},
+ {l:2,t:'single',q:'Минимальный непрерывный еженедельный отдых:',o:['24 часа','36 часов','42 часа','48 часов'],correct:[2]},
+ {l:2,t:'single',q:'Перерыв для отдыха и питания составляет:',o:['Ровно 1 час','От 30 минут до 2 часов','Не более 15 минут','От 1 до 3 часов'],correct:[1]},
+ {l:2,t:'single',q:'За какой срок работника предупреждают о сокращении?',o:['За 2 недели','За 1 месяц','Не менее чем за 2 месяца','За 3 месяца'],correct:[2]},
+ {l:2,t:'single',q:'Что выплачивается работнику при увольнении по сокращению?',o:['Двойной оклад','Выходное пособие (средний месячный заработок)','Только премия','Ничего'],correct:[1]},
+ {l:2,t:'multi',q:'Какие дисциплинарные взыскания предусмотрены ТК РФ (Ст. 192)?',o:['Замечание','Выговор','Штраф','Увольнение'],correct:[0,1,3]},
+ {l:2,t:'single',q:'Что из перечисленного НЕ является дисциплинарным взысканием по ТК РФ?',o:['Замечание','Выговор','Штраф','Увольнение'],correct:[2]},
+ {l:2,t:'multi',q:'Что относится к поощрениям по Ст. 191 ТК РФ?',o:['Благодарность','Премия','Ценный подарок','Выговор'],correct:[0,1,2]},
+ {l:2,t:'multi',q:'Кому НЕ устанавливается испытание при приёме на работу?',o:['Беременным женщинам','Лицам до 18 лет','Топ-менеджерам','Приглашённым в порядке перевода'],correct:[0,1,3]},
+ {l:2,t:'single',q:'Главный кодифицированный источник трудового права в РФ:',o:['Гражданский кодекс','Трудовой кодекс (№197-ФЗ)','КоАП','ФЗ-152'],correct:[1]},
+ {l:2,t:'single',q:'Высший по юридической силе источник трудового права:',o:['Трудовой кодекс РФ','Международные конвенции МОТ','Должностные инструкции','Приказы работодателя'],correct:[1]},
+ {l:2,t:'single',q:'В какой статье Конституции РФ закреплено, что труд свободен, а принудительный труд запрещён?',o:['Ст. 1','Ст. 15','Ст. 37','Ст. 192'],correct:[2]},
+ {l:2,t:'multi',q:'Что относится к локальным нормативным актам (Ст. 8 ТК РФ)?',o:['Коллективный договор','Правила внутреннего трудового распорядка','Положение об оплате труда','Трудовой кодекс РФ'],correct:[0,1,2]},
+ {l:2,t:'single',q:'Кто принимает локальные нормативные акты?',o:['Профсоюз','Работодатель','Государство','Работник'],correct:[1]},
+ {l:2,t:'single',q:'Чем трудовой договор отличается от договора ГПХ?',o:['В ГПХ есть подчинение внутреннему распорядку','Трудовой даёт соцгарантии и подчинение ПВТР','Они идентичны','ГПХ даёт отпуск 28 дней'],correct:[1]},
+ {l:2,t:'single',q:'Предметом договора ГПХ является:',o:['Должность и трудовая функция','Конкретный результат','Соблюдение распорядка','Социальные гарантии'],correct:[1]},
+ {l:2,t:'multi',q:'Что относится к существенным условиям трудового договора?',o:['Место работы','Трудовая функция','Дата начала работы','Размер дивидендов'],correct:[0,1,2]},
+ {l:2,t:'multi',q:'В каких случаях заключается срочный трудовой договор?',o:['На время отсутствия сотрудника','Для сезонных работ','Для работы за границей','Для постоянной основной должности'],correct:[0,1,2]},
+ {l:2,t:'single',q:'При сокращении преимущественное право на оставление имеют сотрудники с:',o:['Большим стажем','Более высокой производительностью и квалификацией','Меньшим окладом','Наибольшим возрастом'],correct:[1]},
+ {l:2,t:'single',q:'Распространяется ли трудовое законодательство на работника в период испытания?',o:['Нет','Да, в полном объёме','Только частично','Только после месяца'],correct:[1]},
+ {l:2,t:'single',q:'Коллективный договор регулирует:',o:['Только размер премий','Социально-трудовые отношения в организации','Налоги компании','Маркетинговую стратегию'],correct:[1]},
+ {l:2,t:'single',q:'Что из перечисленного является обязанностью работодателя?',o:['Поощрять работников','Выплачивать заработную плату','Привлекать к дисциплинарной ответственности','Принимать локальные акты'],correct:[1]},
+
+ // ====== Лекция 3: Стратегия УЧР ======
+ {l:3,t:'single',q:'Модель управления, в которой сотрудники рассматриваются как стратегический ресурс, относится к подходу:',o:['Операционному','Административному','Стратегическому','Функциональному'],correct:[2]},
+ {l:3,t:'single',q:'Стратегический парадокс означает, что выбор делается:',o:['Только в пространстве успеха','В пространстве успеха и в пространстве риска','Только в пространстве риска','Случайным образом'],correct:[1]},
+ {l:3,t:'single',q:'Что, согласно стратегическому УЧР, является главным источником конкурентного преимущества?',o:['Технологии','Человеческий капитал','Реклама','Дешёвое сырьё'],correct:[1]},
+ {l:3,t:'multi',q:'Какие две главные составляющие включает HR-стратегия?',o:['Стратегические цели','Стратегический план','Бюджет маркетинга','Штатное расписание'],correct:[0,1]},
+ {l:3,t:'multi',q:'Какие элементы входят в «4С» Гарвардской модели?',o:['Commitment (приверженность)','Competition (конкуренция)','Cost-effectiveness (эконом. эффективность)','Congruence (согласованность)'],correct:[0,2,3]},
+ {l:3,t:'single',q:'Гарвардская модель учитывает интересы:',o:['Только акционеров','Только сотрудников','Всех заинтересованных сторон (стейкхолдеров)','Только клиентов'],correct:[2]},
+ {l:3,t:'single',q:'AMO-модель расшифровывается как:',o:['Ability / Money / Order','Abilities / Motivation / Opportunities','Action / Mission / Outcome','Attitude / Motivation / Operations'],correct:[1]},
+ {l:3,t:'single',q:'Буква O в AMO-модели означает:',o:['Order (порядок)','Opportunities (возможности)','Outcome (результат)','Operations (операции)'],correct:[1]},
+ {l:3,t:'single',q:'Модель 7-S разработана компанией:',o:['BCG','Маккинси (McKinsey)','Bain','Hay Group'],correct:[1]},
+ {l:3,t:'multi',q:'Какие элементы 7-S относятся к «жёстким»?',o:['Стратегия','Структура','Стиль','Системы'],correct:[0,1,3]},
+ {l:3,t:'multi',q:'Какие элементы 7-S относятся к «мягким»?',o:['Стиль (Style)','Staff (сотрудники)','Skills (навыки)','Структура (Structure)'],correct:[0,1,2]},
+ {l:3,t:'single',q:'Подход Best Fit к разработке HR-стратегии означает:',o:['Копирование лучших практик','Адаптацию стратегии под специфику компании','Соответствие законам','Системную интеграцию'],correct:[1]},
+ {l:3,t:'single',q:'Подход Best Practices ассоциируется с примером:',o:['IKEA','Microsoft','Apple','Unilever'],correct:[1]},
+ {l:3,t:'single',q:'Подход Resource-Based View (RBV) ассоциируется с примером:',o:['IKEA','Microsoft','Apple','P&G'],correct:[2]},
+ {l:3,t:'single',q:'Подход Best Fit (адаптация под специфику) ассоциируется с примером:',o:['IKEA','Microsoft','Apple','Unilever'],correct:[0]},
+ {l:3,t:'single',q:'Институциональный подход (соответствие законам и нормам) ассоциируется с примером:',o:['IKEA','Apple','Unilever','Microsoft'],correct:[2]},
+ {l:3,t:'single',q:'Суть подхода RBV (Resource-Based View):',o:['Копирование чужих методов','Сотрудники — главный ресурс и источник конкурентного преимущества','Соответствие законам','Минимизация затрат на персонал'],correct:[1]},
+ {l:3,t:'multi',q:'Какие роли HR выделяет модель Д. Ульриха (как модель разработки стратегии)?',o:['Стратегический партнёр','Агент изменений','Защитник интересов сотрудников','Держатель акций'],correct:[0,1,2]},
+ {l:3,t:'multi',q:'Какие аспекты относятся к ключевым аспектам HR-стратегии?',o:['Интеграция с бизнес-целями','Гибкость','Долгосрочная перспектива','Максимизация дивидендов'],correct:[0,1,2]},
+ {l:3,t:'single',q:'Дисциплина «Близость к клиенту» (Трейси–Вирсема) требует от сотрудников:',o:['Дисциплины и рутины','Эмпатии, клиентоориентированности и гибкости','Готовности к стандартизации','Только технических навыков'],correct:[1]},
+ {l:3,t:'single',q:'Основная цель стратегического УЧР:',o:['Снижение фонда оплаты труда','Создание стратегических возможностей через сотрудников с нужными навыками и мотивацией','Сокращение штата','Увеличение числа отделов'],correct:[1]},
+
+ // ====== Лекция 4: Эффективная структура HR-службы ======
+ {l:4,t:'single',q:'Какой подход лежит в основе модели HR Дэйва Ульриха?',o:['Централизация всех HR-функций','Разделение HR на бизнес-партнёров, центры экспертизы и операционные сервисы','Передача функций линейным руководителям','Максимальная цифровизация'],correct:[1]},
+ {l:4,t:'multi',q:'Какие три элемента входят в модель Ульриха?',o:['Центр обслуживания (Shared Services)','Центры экспертизы (CoE)','Совет директоров','HR-бизнес-партнёры (HR BP)'],correct:[0,1,3]},
+ {l:4,t:'single',q:'Центр обслуживания (Shared Services) в модели Ульриха отвечает за:',o:['Разработку стратегии','Кадровый учёт, обработку данных и стандартные консультации','Подбор топ-менеджеров','Маркетинг'],correct:[1]},
+ {l:4,t:'single',q:'Центры экспертизы (Centers of Expertise) отвечают за:',o:['Расчёт зарплат','Разработку политик, процедур и мониторинг лучших практик','Уборку офиса','Продажи'],correct:[1]},
+ {l:4,t:'single',q:'HR-бизнес-партнёры отвечают за:',o:['Обработку первичных документов','Связь с внутренними клиентами и участие в HR-стратегии бизнес-направлений','Только расчёт отпусков','Ремонт техники'],correct:[1]},
+ {l:4,t:'single',q:'Сколько ключевых HR-функций выделяется в лекции?',o:['7','10','12','15'],correct:[2]},
+ {l:4,t:'multi',q:'Какие составляющие входят в Сбалансированную систему показателей (ССП/BSC)?',o:['Финансовая','Клиентская','Маркетинговая','Обучение и развитие'],correct:[0,1,3]},
+ {l:4,t:'single',q:'Логика стратегической карты ССП состоит в том, что:',o:['Финансы — основа для обучения','Достижение целей обучения и развития — основа для финансовых результатов','Все составляющие независимы','Клиенты важнее всего'],correct:[1]},
+ {l:4,t:'single',q:'Пример компании Xerox в лекции иллюстрирует:',o:['Успех цифровизации','Недостаточность только финансовых показателей','Пользу сокращений','Эффективность рекламы'],correct:[1]},
+ {l:4,t:'multi',q:'Каким должен быть «хороший» КПЭ?',o:['Сфокусированным','Простым','Контролируемым','Максимально сложным'],correct:[0,1,2]},
+ {l:4,t:'single',q:'По какому принципу разрабатывают КПЭ?',o:['Снизу вверх','Сверху вниз (от компании к подразделению и сотруднику)','Случайно','Только для топ-менеджеров'],correct:[1]},
+ {l:4,t:'multi',q:'Какие категории КПЭ HR-службы выделяют?',o:['Результативные','Процессные','Финансовые','Эмоциональные'],correct:[0,1,2]},
+ {l:4,t:'single',q:'Модель КПЭ HR-службы Института Саратоги включает:',o:['Staffing, Efficiency, Equity, Productivity','Plan, Do, Check, Act','Strengths, Weaknesses, Opportunities, Threats','Specific, Measurable, Achievable, Relevant'],correct:[0]},
+ {l:4,t:'single',q:'Что такое компетенция?',o:['Только опыт работы','Совокупность знаний, умений, навыков и поведенческих проявлений','Уровень зарплаты','Должность в структуре'],correct:[1]},
+ {l:4,t:'multi',q:'Какие виды компетенций выделяют?',o:['Профессиональные','Лидерские','Корпоративные','Сезонные'],correct:[0,1,2]},
+ {l:4,t:'single',q:'Правильный порядок уровней развития компетенций:',o:['Мастерский → продвинутый → средний → начальный','Начальный → средний → продвинутый → мастерский','Средний → начальный → мастерский → продвинутый','Продвинутый → начальный → средний → мастерский'],correct:[1]},
+ {l:4,t:'single',q:'HRMS / HRIS-системы используются для:',o:['Бухгалтерского аудита','Автоматизации процессов управления персоналом','Управления складом','Дизайна сайтов'],correct:[1]},
+ {l:4,t:'single',q:'BI-системы (Business Intelligence) используются для:',o:['Сбора и анализа данных','Расчёта зарплат','Подбора персонала','Хранения договоров'],correct:[0]},
+ {l:4,t:'single',q:'Показатель «стоимость найма» в модели Института Саратоги относится к группе:',o:['Staffing (персонал)','Efficiency (эффективность)','Equity (равенство)','Productivity (продуктивность)'],correct:[1]},
+ {l:4,t:'multi',q:'Какие преимущества у классической линейно-функциональной структуры?',o:['Чёткость функций','Единый центр принятия решений','Универсальность','Высокая гибкость'],correct:[0,1,2]},
+
+ // ====== Лекция 5: Жизненный цикл сотрудника. Подбор и адаптация ======
+ {l:5,t:'single',q:'Сколько этапов в жизненном цикле сотрудника?',o:['3','4','5','7'],correct:[2]},
+ {l:5,t:'single',q:'Каким по счёту этапом жизненного цикла является адаптация (онбординг)?',o:['Первым','Вторым','Третьим','Последним'],correct:[1]},
+ {l:5,t:'single',q:'Завершающий этап жизненного цикла сотрудника называется:',o:['Онбординг','Offboarding (выход из компании)','Рекрутинг','Аттестация'],correct:[1]},
+ {l:5,t:'multi',q:'Какие виды адаптации персонала существуют?',o:['Профессиональная','Социально-психологическая','Финансовая','Психофизиологическая'],correct:[0,1,3]},
+ {l:5,t:'single',q:'Роль «Buddy» (куратора) в адаптации отвечает за:',o:['Профессиональные навыки','Социальную адаптацию','Контроль KPI','Расчёт зарплаты'],correct:[1]},
+ {l:5,t:'single',q:'Наставник в процессе адаптации отвечает за:',o:['Социальную адаптацию','Обучение профессиональным навыкам','Расчёт отпуска','Подбор кандидатов'],correct:[1]},
+ {l:5,t:'single',q:'Руководитель в процессе адаптации отвечает за:',o:['Постановку задач и контроль эффективности','Социальную адаптацию','Оформление документов','Дружеское общение'],correct:[0]},
+ {l:5,t:'single',q:'Социально-психологическая адаптация — это:',o:['Освоение профессии и навыков','Вхождение в коллектив и принятие корпоративной культуры','Привыкание к нагрузкам','Освоение регламентов'],correct:[1]},
+ {l:5,t:'single',q:'Психофизиологическая адаптация — это:',o:['Приспособление к физическим/эмоциональным нагрузкам и режиму труда','Вхождение в коллектив','Освоение организационной структуры','Изучение должностной инструкции'],correct:[0]},
+ {l:5,t:'single',q:'«Эффект ореола» на собеседовании — это:',o:['Игнорирование резюме','Доминирование первого впечатления','Стресс-интервью','Групповая оценка'],correct:[1]},
+ {l:5,t:'multi',q:'Какие ошибки характерны для интервью?',o:['Стереотипизация','Эффект ореола','Вопросы не по компетенциям','Структурированность'],correct:[0,1,2]},
+ {l:5,t:'single',q:'EVP (Employee Value Proposition) — это:',o:['Система оценки','Ценностное предложение работодателя','Метод обучения','Тип трудового договора'],correct:[1]},
+ {l:5,t:'single',q:'Внутреннее EVP направлено прежде всего на:',o:['Привлечение новых сотрудников','Удержание существующих сотрудников','Снижение зарплат','Сокращение штата'],correct:[1]},
+ {l:5,t:'single',q:'EJM (Employee Journey Map) — это:',o:['Карта пути сотрудника по всем этапам взаимодействия','Система расчёта премий','Структура отдела','График отпусков'],correct:[0]},
+ {l:5,t:'single',q:'Прямой поиск кандидатов называется:',o:['Сорсинг','Headhunting','Онбординг','Реферальная программа'],correct:[1]},
+ {l:5,t:'single',q:'Boolean Search (логический поиск по базам) относится к:',o:['Сорсингу','Адаптации','Аттестации','Грейдированию'],correct:[0]},
+ {l:5,t:'multi',q:'Какие методы относятся к методам отбора кандидатов?',o:['Анализ резюме','Интервью','Ассессмент-центр','Гадание'],correct:[0,1,2]},
+ {l:5,t:'multi',q:'Какие принципы относятся к принципам отбора?',o:['Объективность','Прогностическая валидность','Юридическая чистота','Максимальная стоимость'],correct:[0,1,2]},
+ {l:5,t:'single',q:'Профиль должности — это:',o:['Зарплатная вилка','Описание компетенций, опыта и личных качеств для работы','График работы','Список сотрудников отдела'],correct:[1]},
+ {l:5,t:'single',q:'Главная цель адаптации персонала:',o:['Увеличение штата','Снижение издержек (ускорение вхождения в должность, сокращение текучести)','Повышение зарплат','Сокращение отпусков'],correct:[1]},
+ {l:5,t:'single',q:'HR-бренд — это:',o:['Логотип компании','Представление кандидатов и сотрудников о компании','Рекламный слоган','Название продукта'],correct:[1]},
+ {l:5,t:'multi',q:'Какие преимущества у привлечения внутренних кандидатов?',o:['Экономия времени','Быстрая адаптация','Мотивация сотрудников','Гарантированное повышение зарплаты'],correct:[0,1,2]},
+
+ // ====== Лекция 6: Оценка персонала ======
+ {l:6,t:'single',q:'Какой способ оценки используется в методе «360 градусов»?',o:['Оценка только руководителем','Самооценка без обратной связи','Оценка коллегами, подчинёнными, руководством и самим сотрудником','Оценка только по KPI'],correct:[2]},
+ {l:6,t:'single',q:'Оценка «180 градусов» включает обратную связь от:',o:['Руководителя + самооценка','Только коллег','Всех уровней организации','Только подчинённых'],correct:[0]},
+ {l:6,t:'single',q:'Метод «360 градусов» прежде всего позволяет:',o:['Снизить зарплату','Устранить субъективность оценки','Ускорить найм','Сократить штат'],correct:[1]},
+ {l:6,t:'multi',q:'Три цели оценки персонала:',o:['Административная','Информационная','Карательная','Мотивационная'],correct:[0,1,3]},
+ {l:6,t:'single',q:'Чем OKR отличается от КПЭ?',o:['Жёстко привязаны к бонусам','НЕ привязаны к бонусам (для амбициозных целей)','Не измеримы','Ставятся только сверху'],correct:[1]},
+ {l:6,t:'single',q:'MBO (Management by Objectives) — это:',o:['Метод подбора','Управление по целям','Система грейдов','Тип интервью'],correct:[1]},
+ {l:6,t:'single',q:'Метод обратной связи SBI расшифровывается как:',o:['Situation – Behavior – Impact','Skill – Behavior – Income','Strategy – Business – Innovation','Standard – Bonus – Increase'],correct:[0]},
+ {l:6,t:'single',q:'Буква I в методе SBI означает:',o:['Income (доход)','Impact (воздействие)','Idea (идея)','Initiative (инициатива)'],correct:[1]},
+ {l:6,t:'single',q:'Что оценивает тестирование как метод оценки?',o:['Результативность','Компетенции','Только стаж','Зарплату'],correct:[1]},
+ {l:6,t:'single',q:'Что оценивает метод «оценка по целям, КПЭ, OKR»?',o:['Результативность','Только личные качества','Внешность','Лояльность'],correct:[0]},
+ {l:6,t:'single',q:'Ассессмент-центр — это:',o:['Тест на компьютере','Оценочная сессия с моделированием рабочих ситуаций','Собеседование по телефону','Анализ резюме'],correct:[1]},
+ {l:6,t:'multi',q:'Какие принципы относятся к принципам оценки персонала?',o:['Объективность','Прозрачность','Регулярность','Анонимность результатов для сотрудника'],correct:[0,1,2]},
+ {l:6,t:'multi',q:'Какие принципы относятся к эффективной обратной связи?',o:['Конкретность','Своевременность','Конструктивность','Публичность критики'],correct:[0,1,2]},
+ {l:6,t:'single',q:'ИПР (индивидуальный план развития) разрабатывается:',o:['Только HR-отделом','Совместно сотрудником и руководителем','Только сотрудником','Внешним консультантом'],correct:[1]},
+ {l:6,t:'single',q:'По какой методике ставятся цели в ИПР?',o:['SWOT','SMART','PEST','SBI'],correct:[1]},
+
+ // ====== Лекция 7: Развитие и обучение персонала ======
+ {l:7,t:'single',q:'Наука об обучении взрослых называется:',o:['Педагогика','Андрагогика','Дидактика','Эргономика'],correct:[1]},
+ {l:7,t:'multi',q:'Какие принципы относятся к принципам андрагогики?',o:['Опора на опыт','Практическая направленность','Осознанность и самостоятельность','Обязательное наказание за ошибки'],correct:[0,1,2]},
+ {l:7,t:'single',q:'Сколько уровней в модели оценки обучения Киркпатрика?',o:['3','4','5','7'],correct:[1]},
+ {l:7,t:'single',q:'Первый уровень модели Киркпатрика:',o:['Реакция (удовлетворённость участников)','Усвоение','Поведение','Результаты'],correct:[0]},
+ {l:7,t:'single',q:'Четвёртый уровень модели Киркпатрика:',o:['Реакция','Усвоение','Поведение','Результаты (влияние на бизнес-показатели)'],correct:[3]},
+ {l:7,t:'multi',q:'Какие уровни входят в модель Киркпатрика?',o:['Реакция','Усвоение','Поведение','Прибыль акционеров'],correct:[0,1,2]},
+ {l:7,t:'single',q:'Пятый уровень (ROI) к модели Киркпатрика добавил:',o:['Д. Киркпатрик','Дж. Филипс','П. Друкер','Д. Ульрих'],correct:[1]},
+ {l:7,t:'single',q:'GAP-анализ компетенций — это оценка:',o:['Текучести кадров','Разрыва между текущим и желаемым состоянием','Уровня зарплат','Вовлечённости'],correct:[1]},
+ {l:7,t:'multi',q:'Какие формы обучения выделяют?',o:['Очное','Дистанционное','Гибридное (blended)','Телепатическое'],correct:[0,1,2]},
+ {l:7,t:'single',q:'Blended learning — это:',o:['Только онлайн-курсы','Гибридное обучение (сочетание очного и дистанционного)','Обучение за рубежом','Самообучение'],correct:[1]},
+ {l:7,t:'single',q:'Наставничество, ротация и стажировка — это формы обучения:',o:['С отрывом от работы','Без отрыва от работы','Только внешнего','Только дистанционного'],correct:[1]},
+ {l:7,t:'multi',q:'Какие методы используются для выявления потребности в обучении?',o:['Интервью','Опросы','Оценка 360°','Подбрасывание монеты'],correct:[0,1,2]},
+ {l:7,t:'single',q:'По какой методике формулируются цели обучения?',o:['SMART','SWOT','BCG','PEST'],correct:[0]},
+ {l:7,t:'multi',q:'Какие цели относятся к основным целям обучения персонала?',o:['Развитие и поддержание компетенций','Адаптация к изменениям и инновациям','Формирование культуры непрерывного обучения','Снижение зарплат'],correct:[0,1,2]},
+ {l:7,t:'single',q:'Корпоративный университет, в отличие от учебного центра, занимает позицию:',o:['Реактивную','Проактивную (фокус на стратегии и ключевых сотрудниках)','Нейтральную','Пассивную'],correct:[1]},
+ {l:7,t:'single',q:'Учебный центр (в отличие от корпоративного университета) занимает позицию:',o:['Проактивную','Реактивную (обучение под текущие задачи)','Стратегическую','Инновационную'],correct:[1]},
+ {l:7,t:'single',q:'LMS (Moodle, iSpring Learn) в обучении — это:',o:['Система расчёта зарплат','Платформа дистанционного обучения','CRM-система','Складская программа'],correct:[1]},
+
+ // ====== Лекция 8: Управление талантами и кадровый резерв ======
+ {l:8,t:'single',q:'Какой метод управления талантами направлен на их выявление и развитие внутри компании?',o:['Headhunting','Внутренний кадровый резерв','Найм через рекрутинговые агентства','Система штрафов за увольнение'],correct:[1]},
+ {l:8,t:'single',q:'«Война за таланты» — это концепция компании:',o:['BCG','McKinsey','Deloitte','Gartner'],correct:[1]},
+ {l:8,t:'multi',q:'Структура таланта по Дж. Рензулли включает:',o:['Способности выше среднего','Творчество','Высшее образование','Преданность делу'],correct:[0,1,3]},
+ {l:8,t:'multi',q:'Какие виды талантов выделяют по классификации?',o:['Функциональные','Лидерские','Инновационные','Финансовые'],correct:[0,1,2]},
+ {l:8,t:'single',q:'Управление талантами охватывает:',o:['Только топ-менеджеров','От рядовых специалистов до топ-менеджеров','Только новичков','Только HR-отдел'],correct:[1]},
+ {l:8,t:'single',q:'Управление кадровым резервом нацелено прежде всего на:',o:['Привлечение клиентов','Подготовку к ключевым руководящим позициям','Снижение зарплат','Маркетинг'],correct:[1]},
+ {l:8,t:'single',q:'Кадровый резерв — это:',o:['Список уволенных','Группа работников под требования к руководителям, прошедших подготовку','Финансовый запас','Архив документов'],correct:[1]},
+ {l:8,t:'single',q:'Открытый подход к кадровому резерву предполагает:',o:['Конфиденциальность информации','Широкое информирование сотрудников','Отказ от резерва','Только внешний найм'],correct:[1]},
+ {l:8,t:'single',q:'Закрытый подход к кадровому резерву предполагает:',o:['Широкое информирование','Конфиденциальность информации','Соревнование кандидатов','Открытые конкурсы'],correct:[1]},
+ {l:8,t:'single',q:'Целевой подход к кадровому резерву — это:',o:['Соревнование кандидатов','Системное развитие определённых сотрудников под конкретные позиции','Случайный отбор','Внешний поиск'],correct:[1]},
+ {l:8,t:'single',q:'Инструмент оценки кандидатов в резерв по двум осям (потенциал/результативность):',o:['SWOT','9-box grid','PEST','SBI'],correct:[1]},
+ {l:8,t:'single',q:'Грейд — это:',o:['Уровень зарплаты конкретного человека','Ранговая категория должности по сложности, ответственности и значимости','Название отдела','Тип премии'],correct:[1]},
+ {l:8,t:'single',q:'Ключевой принцип системы грейдов:',o:['Оценивается человек','Оценивается должность, а не человек','Оценивается стаж','Оценивается возраст'],correct:[1]},
+ {l:8,t:'multi',q:'Какие методы относятся к методам грейдирования?',o:['Hay Group','Mercer','Факторно-балльный','Метод Дельфи'],correct:[0,1,2]},
+ {l:8,t:'single',q:'Метод грейдирования Hay Group оценивает:',o:['Знания, решение проблем, ответственность','Только стаж работы','Возраст и пол','Внешний вид'],correct:[0]},
+ {l:8,t:'single',q:'Вертикальный карьерный трек — это:',o:['Рост по иерархической лестнице','Развитие в смежных областях','Переход в другую компанию','Понижение в должности'],correct:[0]},
+ {l:8,t:'single',q:'Горизонтальный карьерный трек — это:',o:['Рост по иерархии','Развитие в смежных областях и углубление экспертизы','Увольнение','Смена города'],correct:[1]},
+ {l:8,t:'single',q:'Какая компания достигла 80% назначений за счёт кадрового резерва (2018 г.)?',o:['Сбер','Северсталь','Яндекс','Газпром'],correct:[1]},
+ {l:8,t:'multi',q:'Какие цели относятся к целям создания кадрового резерва?',o:['Обеспечение преемственности','Снижение рисков кадрового дефицита','Развитие сотрудников','Увеличение дивидендов'],correct:[0,1,2]},
+ {l:8,t:'single',q:'Чем управление талантами отличается от управления кадровым резервом по горизонту?',o:['Таланты — краткосрочно, резерв — долгосрочно','Таланты — долгосрочный стратегический характер, резерв — конкретные задачи преемственности','Они идентичны','Оба только краткосрочные'],correct:[1]},
+
+ // ====== Лекция 9: Мотивация персонала. Часть 1 (теории) ======
+ {l:9,t:'single',q:'Сколько уровней в пирамиде потребностей Маслоу?',o:['3','4','5','7'],correct:[2]},
+ {l:9,t:'multi',q:'Какие уровни входят в пирамиду потребностей Маслоу?',o:['Физиологические','Безопасность','Социальные','Финансовые'],correct:[0,1,2]},
+ {l:9,t:'single',q:'Высший уровень пирамиды Маслоу:',o:['Безопасность','Признание','Самореализация','Социальные потребности'],correct:[2]},
+ {l:9,t:'single',q:'Автор двухфакторной теории мотивации:',o:['А. Маслоу','Ф. Герцберг','В. Врум','Дж. Адамс'],correct:[1]},
+ {l:9,t:'single',q:'По Герцбергу зарплата и условия труда относятся к факторам:',o:['Мотивирующим','Гигиеническим','Внутренним','Самореализации'],correct:[1]},
+ {l:9,t:'multi',q:'Какие факторы по Герцбергу относятся к мотивирующим?',o:['Достижения','Признание заслуг','Карьерный рост','Зарплата'],correct:[0,1,2]},
+ {l:9,t:'single',q:'По Герцбергу улучшение гигиенических факторов:',o:['Сильно мотивирует','Устраняет недовольство, но не мотивирует','Снижает производительность','Не имеет значения'],correct:[1]},
+ {l:9,t:'single',q:'Формула теории ожиданий В. Врума:',o:['Ожидание × Инструментальность × Валентность','Abilities × Motivation × Opportunities','Сумма всех потребностей','Усилие − Вознаграждение'],correct:[0]},
+ {l:9,t:'single',q:'Валентность в теории Врума — это:',o:['Вера в достижимость цели','Ценность вознаграждения для сотрудника','Связь результата и награды','Размер оклада'],correct:[1]},
+ {l:9,t:'single',q:'Что произойдёт с мотивацией по Вруму, если хотя бы один множитель формулы равен нулю?',o:['Мотивация максимальна','Мотивации нет','Мотивация не меняется','Мотивация удваивается'],correct:[1]},
+ {l:9,t:'multi',q:'Три потребности в теории МакКлелланда:',o:['Власть','Достижение','Безопасность','Принадлежность'],correct:[0,1,3]},
+ {l:9,t:'single',q:'Теория справедливости в мотивации — её автор:',o:['Дж. Адамс','Б. Скиннер','А. Маслоу','В. Врум'],correct:[0]},
+ {l:9,t:'single',q:'Согласно теории справедливости Адамса, сотрудник сравнивает:',o:['Своё вознаграждение и усилия с коллегами','Только размер оклада','Свою должность с должностью начальника','Свой стаж с возрастом'],correct:[0]},
+ {l:9,t:'multi',q:'Базовые потребности в теории самодетерминации Деси–Райана:',o:['Автономия','Компетентность','Власть','Связанность'],correct:[0,1,3]},
+ {l:9,t:'single',q:'По теории самодетерминации внешняя мотивация (деньги, бонусы):',o:['Всегда сильнее внутренней','Менее эффективна в долгосрочной перспективе','Единственно работающая','Не влияет вообще'],correct:[1]},
+ {l:9,t:'single',q:'Автор оперантного научения («кнут и пряник»):',o:['А. Маслоу','Б. Скиннер','Э. Мэйо','Дж. Адамс'],correct:[1]},
+ {l:9,t:'single',q:'Положительное подкрепление («пряник») по Скиннеру — это:',o:['Добавление приятного стимула (премия)','Удаление приятного стимула','Добавление неприятного стимула','Выговор'],correct:[0]},
+ {l:9,t:'single',q:'Отрицательное наказание по Скиннеру — это:',o:['Добавление премии','Удаление приятного стимула (лишение бонуса)','Снятие контроля','Похвала'],correct:[1]},
+ {l:9,t:'single',q:'«Эффект Хоторна»: люди работают лучше, когда:',o:['Им больше платят','Чувствуют внимание к себе и важность труда','Лучше освещение','Меньше контроля'],correct:[1]},
+ {l:9,t:'single',q:'Ключевым фактором роста производительности в Хоторнском эксперименте стало:',o:['Улучшение освещения','Внимание к рабочим и осознание важности их труда','Повышение зарплаты','Сокращение рабочего дня'],correct:[1]},
+ {l:9,t:'single',q:'Мотив — это:',o:['Внешний фактор, побуждающий к действию','Потребность, осознанная в форме конкретной цели','Процесс побуждения','Нужда в выживании'],correct:[1]},
+ {l:9,t:'single',q:'Стимул — это:',o:['Внутренняя цель','Внешний фактор, побуждающий к действию','Нужда в чём-либо','Результат труда'],correct:[1]},
+ {l:9,t:'single',q:'Потребность — это:',o:['Осознанная цель','Нужда в чём-либо для выживания или развития','Внешний фактор','Процесс'],correct:[1]},
+
+ // ====== Лекция 10: Мотивация персонала. Часть 2 (практика) ======
+ {l:10,t:'single',q:'Какой показатель используется для оценки текучести кадров?',o:['Средний возраст сотрудников','Процент увольнений за определённый период','Количество принятых кандидатов','Уровень вовлечённости'],correct:[1]},
+ {l:10,t:'multi',q:'Какие схемы относятся к материальной мотивации?',o:['Фиксированная (оклад)','Бонусная','Комиссионная','Благотворительная'],correct:[0,1,2]},
+ {l:10,t:'single',q:'Главный плюс фиксированной (окладной) системы оплаты:',o:['Высокая мотивация к эффективности','Стабильность','Зависимость от результата','Низкие затраты'],correct:[1]},
+ {l:10,t:'single',q:'Главный минус комиссионной схемы оплаты:',o:['Стабильность','Нестабильность дохода и стресс','Отсутствие связи с результатом','Высокий оклад'],correct:[1]},
+ {l:10,t:'single',q:'Долгосрочные мотивационные программы (опционы, акции) направлены прежде всего на:',o:['Снижение оклада','Лояльность и удержание топ-менеджеров','Краткосрочный стимул','Сокращение штата'],correct:[1]},
+ {l:10,t:'multi',q:'Что относится к нематериальной мотивации?',o:['Программы признания','Гибкость и автономия','Карьерное развитие','Повышение оклада'],correct:[0,1,2]},
+ {l:10,t:'single',q:'Программа признания «gThanks» внедрена в компании:',o:['Apple','Google','Amazon','Microsoft'],correct:[1]},
+ {l:10,t:'multi',q:'Что относится к программам корпоративного благополучия (Well-being)?',o:['Спорт и фитнес','Медицинское страхование','Психологическая поддержка','Штрафы за опоздания'],correct:[0,1,2]},
+ {l:10,t:'multi',q:'Какие два уровня выделяют в системе мотивации?',o:['Организационный','Индивидуальный','Государственный','Международный'],correct:[0,1]},
+ {l:10,t:'single',q:'Индивидуальный мотивационный профиль — это:',o:['Резюме сотрудника','Системное описание факторов, влияющих на мотивацию сотрудника','График отпусков','Должностная инструкция'],correct:[1]},
+ {l:10,t:'single',q:'Сотрудников-карьеристов лучше всего мотивировать:',o:['Только премиями','Чётким карьерным треком и стратегическими проектами','Гибким графиком','Снижением контроля'],correct:[1]},
+ {l:10,t:'single',q:'Автономных сотрудников лучше всего мотивировать:',o:['Жёстким контролем','Гибкими условиями и минимальным контролем','Публичной похвалой','Штрафами'],correct:[1]},
+ {l:10,t:'single',q:'Формула ROI мотивационной программы:',o:['(Прибыль − Затраты) / Затраты × 100%','Прибыль / Выручка','Затраты / Прибыль','Выручка × Маржа'],correct:[0]},
+ {l:10,t:'multi',q:'Какие показатели используют для оценки эффективности системы мотивации?',o:['Производительность труда','Текучесть кадров','Удовлетворённость и вовлечённость','Цвет логотипа'],correct:[0,1,2]},
+ {l:10,t:'single',q:'Опросы eNPS и Gallup Q12 измеряют:',o:['Прибыль компании','Удовлетворённость и вовлечённость сотрудников','Текучесть оборудования','Курс акций'],correct:[1]},
+ {l:10,t:'multi',q:'Какие из перечисленного относятся к основным причинам ухода сотрудников?',o:['Низкая оплата труда','Плохие отношения с руководителем','Отсутствие карьерного роста','Удобное кресло'],correct:[0,1,2]},
+ {l:10,t:'single',q:'Кого, согласно лекции, следует удерживать в первую очередь?',o:['«Балласт»','Ключевые кадры','Новичков на испытательном сроке','Временный персонал'],correct:[1]},
+ {l:10,t:'multi',q:'Кого следует удерживать в первую очередь?',o:['Ключевые кадры','Перспективных сотрудников','«Балласт»','Эффективных исполнителей'],correct:[0,1,3]},
+ {l:10,t:'single',q:'Сотрудники, прошедшие качественный онбординг, удерживаются:',o:['На 80% дольше','На 10% меньше','Так же, как все','В 2 раза меньше'],correct:[0]},
+
+ // ====== Лекция 11: Цифровизация HR-процессов ======
+ {l:11,t:'single',q:'Чем цифровизация HR отличается от автоматизации?',o:['Ничем','Цифровизация — комплексное изменение с аналитикой и интеграцией с бизнесом','Автоматизация всегда сложнее','Цифровизация — это только чат-боты'],correct:[1]},
+ {l:11,t:'single',q:'Автоматизация HR — это:',o:['Комплексное изменение всего HR','Упрощение отдельных HR-функций','Только аналитика','Предиктивные модели'],correct:[1]},
+ {l:11,t:'single',q:'HRIS — это:',o:['Система управления обучением','Информационная система управления персоналом','Метод оценки','Тип трудового договора'],correct:[1]},
+ {l:11,t:'single',q:'LMS — это:',o:['Система управления обучением','Система расчёта зарплат','CRM-система','ERP-система'],correct:[0]},
+ {l:11,t:'single',q:'Закон, регулирующий защиту персональных данных в РФ:',o:['№197-ФЗ','ФЗ-152','№44-ФЗ','№223-ФЗ'],correct:[1]},
+ {l:11,t:'multi',q:'Какие из систем являются российскими HRIS?',o:['1С:ЗУП','БОСС-Кадровик','Moodle','Битрикс24'],correct:[0,1,3]},
+ {l:11,t:'single',q:'Big Data и People Analytics в HR используются прежде всего для:',o:['Дизайна офиса','Прогнозирования текучести и оптимизации процессов','Расчёта налогов','Рекламы продукта'],correct:[1]},
+ {l:11,t:'single',q:'Кому подходит подход Big Data в HR?',o:['Малому бизнесу (<300)','Крупным компаниям (1000+)','Только стартапам','Компаниям без данных'],correct:[1]},
+ {l:11,t:'single',q:'Кому НЕ подходит подход Big Data в HR?',o:['Крупным корпорациям','Малому бизнесу и компаниям без стабильного источника данных','Банкам','Ритейл-сетям'],correct:[1]},
+ {l:11,t:'multi',q:'Какие применения AI в HR названы в лекции?',o:['Автоматический анализ резюме','Чат-боты для общения с кандидатами','Выявление рисков увольнения','Начисление дивидендов'],correct:[0,1,2]},
+ {l:11,t:'multi',q:'Какие преимущества даёт VR/AR в обучении?',o:['Высокая вовлечённость','Безопасность обучения (моделирование критических ситуаций)','Сокращение затрат на тренеров и логистику','Физическая телепортация сотрудников'],correct:[0,1,2]},
+ {l:11,t:'single',q:'«Пульс» от Сбера — это:',o:['Фитнес-приложение','Платформа управления персоналом с HR-аналитикой','Банковская карта','LMS-система для вузов'],correct:[1]},
+ {l:11,t:'multi',q:'Какие функции относятся к ключевым функциям HRIS?',o:['Хранение данных сотрудников','Автоматизация расчёта зарплат','Мониторинг КПЭ и аналитика','Реклама в соцсетях'],correct:[0,1,2]},
+ {l:11,t:'single',q:'Гибридная работа — это формат, при котором сотрудники:',o:['Работают только в офисе','Совмещают офисную и удалённую работу','Работают только из дома','Не имеют графика'],correct:[1]},
+ {l:11,t:'single',q:'Главная цель мониторинга продуктивности персонала:',o:['Контроль ради контроля','Выявление зон роста и повышение эффективности','Сокращение зарплат','Увеличение штрафов'],correct:[1]},
+ {l:11,t:'single',q:'Корпоративный портал — это:',o:['Внешний сайт компании','Единая цифровая платформа доступа к HR-сервисам, коммуникациям и обучению','Социальная сеть','Интернет-магазин'],correct:[1]},
+ {l:11,t:'single',q:'RPA и чат-боты в HR нужны прежде всего для:',o:['Стратегического планирования','Автоматизации рутинных HR-задач','Подбора топ-менеджеров','Расчёта дивидендов'],correct:[1]},
+ {l:11,t:'single',q:'Цифровизация HR — это:',o:['Внедрение цифровых технологий для автоматизации управления персоналом','Покупка новых компьютеров','Создание сайта компании','Перевод бумаг в шкаф'],correct:[0]},
+
+ // ====== Лекция 12: Современные вызовы, тренды и перспективы HR ======
+ {l:12,t:'single',q:'ESG расшифровывается как:',o:['Economy / Social / Growth','Environmental / Social / Governance','Energy / Safety / Goals','Equity / Standards / Growth'],correct:[1]},
+ {l:12,t:'single',q:'Буква E в ESG означает:',o:['Economy (экономика)','Environmental (экология)','Education (образование)','Equity (равенство)'],correct:[1]},
+ {l:12,t:'single',q:'Буква G в ESG означает:',o:['Growth (рост)','Governance (управление/прозрачность)','Goals (цели)','Global (глобальность)'],correct:[1]},
+ {l:12,t:'single',q:'«New Collar» — это профессии:',o:['Рабочие (синие воротнички)','Технологические без высшего образования','Топ-менеджмент','Творческие'],correct:[1]},
+ {l:12,t:'single',q:'«Blue Collar» — это:',o:['Технологические профессии','Рабочие профессии (сварщики, операторы ЧПУ, логисты)','Творческие профессии','Управленцы'],correct:[1]},
+ {l:12,t:'single',q:'За какое время осваиваются профессии New Collar?',o:['За 5 лет','За 6–12 месяцев','За 2 недели','За 10 лет'],correct:[1]},
+ {l:12,t:'single',q:'Что оценивают компании при найме на New Collar?',o:['Дипломы','Навыки, а не дипломы','Возраст','Связи'],correct:[1]},
+ {l:12,t:'single',q:'«Silver Staff» — это тренд:',o:['Найма молодёжи','Старения рабочей силы (возрастные сотрудники)','Серебряной экономики','Удалённой работы'],correct:[1]},
+ {l:12,t:'multi',q:'За что ценят возрастных сотрудников при найме?',o:['Богатый опыт и устойчивость','Лояльность и стабильность','Возможность быть наставниками','Низкую зарплату'],correct:[0,1,2]},
+ {l:12,t:'multi',q:'Какие поколения работают в современных командах (по лекции)?',o:['Бэби-бумеры','Поколение X','Поколение Y','Поколение Альфа'],correct:[0,1,2]},
+ {l:12,t:'single',q:'К какому возрасту относится поколение Z?',o:['55+','40–55','25–40','18–25'],correct:[3]},
+ {l:12,t:'single',q:'К какому возрасту относятся бэби-бумеры?',o:['55+','40–55','25–40','18–25'],correct:[0]},
+ {l:12,t:'single',q:'К 2035 году доля рабочей силы старше 60 лет составит:',o:['Менее 10%','Около 20%','Более 30%','Более 50%'],correct:[2]},
+ {l:12,t:'multi',q:'Какие из перечисленного относятся к навыкам будущего?',o:['Антихрупкость','Цифровая грамотность','Эмоциональный интеллект','Знание латыни'],correct:[0,1,2]},
+ {l:12,t:'single',q:'Антихрупкость — это способность:',o:['Избегать любых рисков','Становиться сильнее в условиях кризиса и нестабильности','Не меняться никогда','Работать без отдыха'],correct:[1]},
+ {l:12,t:'single',q:'Циклы Кондратьева описывают:',o:['Жизненный цикл сотрудника','Смену технологических укладов (волны 40–60 лет)','Этапы адаптации','Этапы мотивации'],correct:[1]},
+ {l:12,t:'single',q:'На чём базируется текущая 6-я технологическая волна?',o:['На паровых машинах','На NBIC-конвергенции','На электрификации','На конвейере'],correct:[1]},
+ {l:12,t:'single',q:'NBIC-конвергенция включает технологии:',o:['Нано-, био-, информационные и когнитивные','Только цифровые','Только биологические','Финансовые и юридические'],correct:[0]},
+ {l:12,t:'single',q:'Метрика eNPS измеряет:',o:['Прибыль компании','Готовность сотрудников рекомендовать компанию','Текучесть кадров','Уровень зарплат'],correct:[1]},
+ {l:12,t:'single',q:'Метрика ESAT измеряет:',o:['Удовлетворённость сотрудников работой','Стоимость акций','Объём продаж','Число клиентов'],correct:[0]},
+ {l:12,t:'single',q:'Employee Experience (EX) — это:',o:['Только онбординг','Управление взаимодействием сотрудника с компанией на всех этапах','Система штрафов','Корпоративный праздник'],correct:[1]},
+ {l:12,t:'multi',q:'Какие метрики используются для измерения Employee Experience?',o:['eNPS','ESAT','Индекс вовлечённости','Курс акций компании'],correct:[0,1,2]},
+ {l:12,t:'multi',q:'Какие вызовы для бизнеса в РФ названы в лекции?',o:['Санкции и ограничение доступа к западным технологиям','Изменения глобальных цепочек поставок','Экономическая неопределённость','Избыток квалифицированных кадров'],correct:[0,1,2]},
+ {l:12,t:'single',q:'Основной тренд трансформации бизнеса в РФ — переход:',o:['От локализации к глобализации','От глобализации к локализации (импортозамещение)','К полной автоматизации','К офшоризации'],correct:[1]},
+ {l:12,t:'single',q:'«3 карьеры за жизнь» означает, что человек:',o:['Работает в 3 сменах','Осваивает 2–3 профессии в течение жизни','Меняет 3 города','Имеет 3 высших образования'],correct:[1]},
+ {l:12,t:'single',q:'Как называется часть выхода сотрудника, включающая анализ причин увольнения?',o:['Адаптация','Онбординг','Выходное интервью','Performance review'],correct:[2]},
+ {l:12,t:'single',q:'Почему ESG важно для HR?',o:['Снижает налоги','Молодые специалисты выбирают компании с ESG-инициативами','Заменяет зарплату','Отменяет отпуска'],correct:[1]}
+];
+QUIZ.forEach((q,i)=>q.id=i);
+
+const LECNAMES = {1:'Основы УЧР',2:'Трудовое право',3:'Стратегия УЧР',4:'Структура HR',5:'Жизненный цикл',6:'Оценка',7:'Обучение',8:'Таланты и резерв',9:'Мотивация I',10:'Мотивация II',11:'Цифровизация',12:'Тренды HR'};
+
+/* ============== СОСТОЯНИЕ ============== */
+const S = {
+  mode:'cards',
+  cardLec:'all', cardCat:'all',
+  deck:[], cIdx:0, flipped:false, onlyReview:false,
+  status:{}, // id -> 'know'|'review'
+  quizLec:'all', quizPool:[], qIdx:0,
+  exam:null
+};
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+const arrEq=(a,b)=>a.length===b.length&&a.every(x=>b.includes(x));
+const LETT=['A','B','C','D','E'];
+
+/* ============== ТАБЫ ============== */
+$$('#tabs .tab').forEach(t=>t.onclick=()=>{
+  S.mode=t.dataset.mode;
+  $$('#tabs .tab').forEach(x=>x.classList.toggle('on',x===t));
+  ['cards','quiz','exam','cheat'].forEach(m=>$('#m-'+m).classList.toggle('hide',m!==S.mode));
+  if(S.mode==='quiz') renderQuiz();
+  if(S.mode==='exam') renderExamIntro();
+  updateGlobalStat();
+});
+
+/* ============== КАРТОЧКИ ============== */
+function buildCardChips(){
+  const lecBox=$('#cardLecChips'); lecBox.innerHTML='';
+  const all=mk('chip','Все',S.cardLec==='all'); all.onclick=()=>{S.cardLec='all';rebuildDeck();}; lecBox.appendChild(all);
+  for(let l=1;l<=12;l++){const c=mk('chip','Л'+l,S.cardLec==l);c.onclick=()=>{S.cardLec=l;rebuildDeck();};lecBox.appendChild(c);}
+  const catBox=$('#cardCatChips'); catBox.innerHTML='';
+  const ca=mk('chip','Все',S.cardCat==='all'); ca.onclick=()=>{S.cardCat='all';rebuildDeck();}; catBox.appendChild(ca);
+  CATS.forEach(cat=>{const c=mk('chip cat',CATLBL[cat],S.cardCat==cat);c.dataset.cat=cat;c.onclick=()=>{S.cardCat=cat;rebuildDeck();};catBox.appendChild(c);});
+}
+function mk(cls,txt,on){const b=document.createElement('button');b.className='chip'+(cls.includes('cat')?' cat':'')+(on?' on':'');b.textContent=txt;return b;}
+
+function rebuildDeck(keepShuffle){
+  let d=CARDS.filter(c=>(S.cardLec==='all'||c.l==S.cardLec)&&(S.cardCat==='all'||c.c==S.cardCat));
+  if(S.onlyReview) d=d.filter(c=>S.status[c.id]==='review');
+  S.deck = d; S.cIdx=0; S.flipped=false;
+  buildCardChips();
+  renderCard();
+}
+function renderCard(){
+  const fc=$('#flashcard');
+  if(!S.deck.length){
+    $('#fcQ').textContent='Нет карточек под этот фильтр';
+    $('#fcA').textContent='Смени фильтр или выключи «Только повторить».';
+    $('#fcCatF').textContent='';$('#fcLecF').textContent='';$('#fcCatB').textContent='';$('#fcLecB').textContent='';
+    $('#fcCount').textContent='0 / 0';
+    $('#fcPrev').disabled=true;$('#fcNext').disabled=true;
+    fc.classList.remove('flip');
+    return;
+  }
+  const c=S.deck[S.cIdx];
+  fc.classList.toggle('flip',S.flipped);
+  $('#fcCatF').textContent=CATLBL[c.c];$('#fcCatF').dataset.cat=c.c;
+  $('#fcCatB').textContent=CATLBL[c.c];$('#fcCatB').dataset.cat=c.c;
+  $('#fcLecF').textContent='Л'+c.l+' · '+LECNAMES[c.l];
+  $('#fcLecB').textContent='Л'+c.l+' · '+LECNAMES[c.l];
+  $('#fcQ').textContent=c.q;
+  $('#fcA').textContent=c.a;
+  $('#fcCount').innerHTML='<b>'+(S.cIdx+1)+'</b> / '+S.deck.length;
+  $('#fcPrev').disabled=S.cIdx===0;
+  $('#fcNext').disabled=S.cIdx===S.deck.length-1;
+  const st=S.status[c.id];
+  $('#fcKnow').classList.toggle('act',st==='know');
+  $('#fcReview').classList.toggle('act',st==='review');
+  updateGlobalStat();
+}
+function flip(){if(!S.deck.length)return;S.flipped=!S.flipped;$('#flashcard').classList.toggle('flip',S.flipped);}
+function go(d){const n=S.cIdx+d;if(n<0||n>=S.deck.length)return;S.cIdx=n;S.flipped=false;renderCard();}
+
+$('#flashcard').onclick=flip;
+$('#flashcard').onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();flip();}if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1);};
+$('#fcPrev').onclick=()=>go(-1);
+$('#fcNext').onclick=()=>go(1);
+$('#fcKnow').onclick=()=>{const c=S.deck[S.cIdx];S.status[c.id]=S.status[c.id]==='know'?undefined:'know';renderCard();if(S.cIdx<S.deck.length-1)setTimeout(()=>go(1),140);};
+$('#fcReview').onclick=()=>{const c=S.deck[S.cIdx];S.status[c.id]=S.status[c.id]==='review'?undefined:'review';renderCard();};
+$('#fcShuffle').onclick=()=>{S.deck=shuffle(S.deck);S.cIdx=0;S.flipped=false;renderCard();};
+$('#fcOnlyReview').onclick=function(){S.onlyReview=!S.onlyReview;this.style.color=S.onlyReview?'#fff':'';this.style.borderColor=S.onlyReview?'var(--accent)':'';this.style.background=S.onlyReview?'var(--accent)':'';rebuildDeck();};
+$('#fcReset').onclick=()=>{if(confirm('Сбросить отметки «знаю / повторить»?')){S.status={};renderCard();}};
+
+document.addEventListener('keydown',e=>{
+  if(S.mode!=='cards')return;
+  if(e.target.tagName==='INPUT')return;
+  if(e.key==='ArrowRight')go(1);
+  if(e.key==='ArrowLeft')go(-1);
+});
+
+/* ============== ТРЕНИРОВКА (QUIZ) ============== */
+function buildQuizChips(){
+  const box=$('#quizLecChips');box.innerHTML='';
+  const all=mk('chip','Все',S.quizLec==='all');all.onclick=()=>{S.quizLec='all';renderQuiz();};box.appendChild(all);
+  for(let l=1;l<=12;l++){const c=mk('chip','Л'+l,S.quizLec==l);c.onclick=()=>{S.quizLec=l;renderQuiz();};box.appendChild(c);}
+}
+function renderQuiz(){
+  buildQuizChips();
+  S.quizPool=QUIZ.filter(q=>S.quizLec==='all'||q.l==S.quizLec);
+  S.qIdx=0;
+  drawQuizQ();
+}
+function drawQuizQ(){
+  const box=$('#quizCard');
+  if(!S.quizPool.length){box.innerHTML='<p style="color:var(--muted)">Нет вопросов под этот фильтр.</p>';return;}
+  const q=S.quizPool[S.qIdx];
+  const total=S.quizPool.length;
+  let sel=[];let checked=false;
+  box.innerHTML='';
+  const prog=document.createElement('div');prog.className='q-progress';prog.innerHTML='<span style="width:'+((S.qIdx)/total*100)+'%"></span>';
+  const meta=document.createElement('div');meta.className='q-meta';
+  meta.innerHTML='<span>Л'+q.l+' · '+LECNAMES[q.l]+'</span><span class="q-type '+q.t+'">'+(q.t==='single'?'один ответ':'несколько ответов')+'</span>';
+  const text=document.createElement('div');text.className='q-text';text.textContent=q.q;
+  const opts=document.createElement('div');opts.className='opts';
+  q.o.forEach((txt,i)=>{
+    const o=document.createElement('div');o.className='opt '+q.t;
+    o.innerHTML='<span class="box"></span><span class="lett">'+LETT[i]+'</span><span>'+txt+'</span>';
+    o.onclick=()=>{
+      if(checked)return;
+      if(q.t==='single'){sel=[i];}
+      else{sel.includes(i)?sel=sel.filter(x=>x!==i):sel.push(i);}
+      [...opts.children].forEach((el,j)=>{el.classList.toggle('sel',sel.includes(j));el.querySelector('.box').textContent=sel.includes(j)?'✓':'';});
+      btn.disabled=sel.length===0;
+    };
+    opts.appendChild(o);
+  });
+  const foot=document.createElement('div');foot.className='q-foot';
+  const btn=document.createElement('button');btn.className='btn-primary';btn.textContent='Проверить';btn.disabled=true;
+  const counter=document.createElement('span');counter.style.cssText='font-family:Space Mono,monospace;font-size:12px;color:var(--muted);margin-left:auto';
+  counter.textContent=(S.qIdx+1)+' / '+total;
+  foot.append(btn,counter);
+  box.append(prog,meta,text,opts,foot);
+
+  btn.onclick=()=>{
+    if(!checked){
+      checked=true;
+      const correct=arrEq(sel,q.correct);
+      [...opts.children].forEach((el,j)=>{
+        el.classList.add('locked');
+        if(q.correct.includes(j)){el.classList.add('correct');el.querySelector('.box').textContent='✓';}
+        else if(sel.includes(j)){el.classList.add('wrong');el.querySelector('.box').textContent='✕';}
+      });
+      const v=document.createElement('div');v.className='verdict '+(correct?'ok':'no');
+      const right=q.correct.map(i=>LETT[i]).join(', ');
+      v.innerHTML='<b>'+(correct?'Верно ✓':'Неверно ✕')+'</b> — правильный ответ: '+right+'.';
+      box.insertBefore(v,foot);
+      btn.textContent = S.qIdx<total-1 ? 'Следующий →' : 'Начать заново';
+      prog.firstChild.style.width=((S.qIdx+1)/total*100)+'%';
+    } else {
+      if(S.qIdx<total-1){S.qIdx++;}else{S.qIdx=0;S.quizPool=shuffle(S.quizPool);}
+      drawQuizQ();
+    }
+  };
+}
+
+/* ============== ЭКЗАМЕН ============== */
+function renderExamIntro(){
+  if(S.exam&&S.exam.running){drawExamQ();return;}
+  if(S.exam&&S.exam.finished){drawExamResults();return;}
+  const box=$('#examBox');
+  box.className='panel center-card';
+  box.innerHTML=`
+    <div class="kicker" style="color:var(--gold)">Симуляция</div>
+    <h2>Пробный экзамен</h2>
+    <p>30 случайных вопросов из всех лекций. Таймер 30 минут, как в компьютерном классе. Проверка — только в конце.</p>
+    <div class="exam-facts">
+      <div class="fact"><div class="n">30</div><div class="l">вопросов</div></div>
+      <div class="fact"><div class="n">30:00</div><div class="l">минут</div></div>
+      <div class="fact"><div class="n">12</div><div class="l">лекций</div></div>
+    </div>
+    <button class="btn-primary" id="examStart">Начать экзамен</button>`;
+  $('#examStart').onclick=startExam;
+}
+function startExam(){
+  const pool=shuffle(QUIZ).slice(0,Math.min(30,QUIZ.length));
+  S.exam={running:true,finished:false,qs:pool,ans:pool.map(()=>[]),idx:0,left:30*60};
+  S.exam.timer=setInterval(()=>{
+    S.exam.left--;
+    updateTimer();
+    if(S.exam.left<=0)finishExam();
+  },1000);
+  drawExamQ();
+}
+function updateTimer(){
+  const t=$('#examTimer');if(!t)return;
+  const m=String(Math.floor(S.exam.left/60)).padStart(2,'0'),s=String(S.exam.left%60).padStart(2,'0');
+  t.textContent=m+':'+s;
+  t.classList.toggle('warn',S.exam.left<=120);
+}
+function drawExamQ(){
+  const box=$('#examBox');box.className='panel q-card';
+  const E=S.exam,q=E.qs[E.idx],total=E.qs.length,sel=E.ans[E.idx];
+  box.innerHTML='';
+  const top=document.createElement('div');top.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:14px';
+  top.innerHTML='<span class="timer" id="examTimer">30:00</span>';
+  const tt=document.createElement('span');tt.style.cssText='font-family:Space Mono,monospace;font-size:12px;color:var(--muted)';
+  tt.textContent='Вопрос '+(E.idx+1)+' / '+total;
+  top.appendChild(tt);
+  const prog=document.createElement('div');prog.className='q-progress';prog.innerHTML='<span style="width:'+((E.idx+1)/total*100)+'%"></span>';
+  const meta=document.createElement('div');meta.className='q-meta';
+  meta.innerHTML='<span>Л'+q.l+'</span><span class="q-type '+q.t+'">'+(q.t==='single'?'один ответ':'несколько ответов')+'</span>';
+  const text=document.createElement('div');text.className='q-text';text.textContent=q.q;
+  const opts=document.createElement('div');opts.className='opts';
+  q.o.forEach((txt,i)=>{
+    const o=document.createElement('div');o.className='opt '+q.t+(sel.includes(i)?' sel':'');
+    o.innerHTML='<span class="box">'+(sel.includes(i)?'✓':'')+'</span><span class="lett">'+LETT[i]+'</span><span>'+txt+'</span>';
+    o.onclick=()=>{
+      if(q.t==='single'){E.ans[E.idx]=[i];}
+      else{sel.includes(i)?E.ans[E.idx]=sel.filter(x=>x!==i):sel.push(i);}
+      drawExamQ();
+    };
+    opts.appendChild(o);
+  });
+  const foot=document.createElement('div');foot.className='q-foot';
+  const prev=document.createElement('button');prev.className='btn-ghost';prev.textContent='← Назад';prev.disabled=E.idx===0;prev.onclick=()=>{E.idx--;drawExamQ();};
+  const next=document.createElement('button');next.className='btn-primary';
+  if(E.idx<total-1){next.textContent='Дальше →';next.onclick=()=>{E.idx++;drawExamQ();};}
+  else{next.textContent='Завершить';next.onclick=()=>{if(confirm('Завершить экзамен и увидеть результат?'))finishExam();};}
+  const ansCount=E.ans.filter(a=>a.length).length;
+  const cinfo=document.createElement('span');cinfo.style.cssText='font-family:Space Mono,monospace;font-size:12px;color:var(--muted);margin-left:auto';
+  cinfo.textContent='отвечено: '+ansCount+'/'+total;
+  foot.append(prev,next,cinfo);
+  box.append(top,prog,meta,text,opts,foot);
+  updateTimer();
+}
+function finishExam(){
+  clearInterval(S.exam.timer);
+  S.exam.running=false;S.exam.finished=true;
+  drawExamResults();
+}
+function drawExamResults(){
+  const E=S.exam,total=E.qs.length;
+  let correct=0;const byLec={};
+  E.qs.forEach((q,i)=>{
+    const ok=arrEq(E.ans[i],q.correct);
+    if(ok)correct++;
+    byLec[q.l]=byLec[q.l]||{c:0,t:0};byLec[q.l].t++;if(ok)byLec[q.l].c++;
+  });
+  const pct=Math.round(correct/total*100);
+  let grade,gcol;
+  if(pct>=85){grade='Отлично';gcol='var(--good)';}
+  else if(pct>=70){grade='Хорошо';gcol='var(--gold)';}
+  else if(pct>=55){grade='Удовлетворительно';gcol='#d98a3d';}
+  else{grade='Надо повторить';gcol='var(--accent)';}
+  const box=$('#examBox');box.className='panel center-card';
+  let rows='';
+  Object.keys(byLec).sort((a,b)=>a-b).forEach(l=>{
+    const o=byLec[l],p=Math.round(o.c/o.t*100);
+    const col=p>=70?'var(--good)':p>=50?'var(--gold)':'var(--accent)';
+    rows+='<div class="row"><span class="ln">Л'+l+' '+LECNAMES[l]+'</span><span class="track"><span class="fill" style="width:'+p+'%;background:'+col+'"></span></span><span class="sc">'+o.c+'/'+o.t+'</span></div>';
+  });
+  box.innerHTML=`
+    <div class="kicker" style="color:var(--gold)">Результат</div>
+    <div class="score-ring" style="color:${gcol}">${correct}<small>/${total}</small></div>
+    <div class="grade" style="background:${gcol}22;color:${gcol}">${grade} · ${pct}%</div>
+    <div class="byLec">${rows}</div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn-ghost" id="examReview">Разобрать ошибки</button>
+      <button class="btn-primary" id="examAgain">Пройти заново</button>
+    </div>`;
+  $('#examAgain').onclick=()=>{S.exam=null;renderExamIntro();};
+  $('#examReview').onclick=()=>drawExamReview();
+}
+function drawExamReview(){
+  const E=S.exam;const box=$('#examBox');box.className='panel q-card';
+  let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-family:Space Grotesk;font-size:19px">Разбор</h2><button class="btn-ghost" id="backRes">← К результату</button></div>';
+  E.qs.forEach((q,i)=>{
+    const ok=arrEq(E.ans[i],q.correct);
+    html+='<div style="padding:14px 0;border-top:1px solid var(--line)">';
+    html+='<div style="font-family:Space Mono,monospace;font-size:11px;color:var(--muted);margin-bottom:6px">'+(i+1)+' · Л'+q.l+' · '+(ok?'<span style="color:var(--good)">верно</span>':'<span style="color:var(--accent)">ошибка</span>')+'</div>';
+    html+='<div style="font-weight:600;font-family:Space Grotesk;margin-bottom:8px">'+q.q+'</div>';
+    q.o.forEach((txt,j)=>{
+      const isC=q.correct.includes(j),wasSel=E.ans[i].includes(j);
+      let c='color:var(--muted)';let mk='';
+      if(isC){c='color:var(--good);font-weight:600';mk=' ✓';}
+      else if(wasSel){c='color:var(--accent)';mk=' ✕ (ваш)';}
+      html+='<div style="font-size:13.5px;'+c+';padding:2px 0">'+LETT[j]+'. '+txt+mk+'</div>';
+    });
+    html+='</div>';
+  });
+  box.innerHTML=html;
+  $('#backRes').onclick=()=>drawExamResults();
+}
+
+/* ============== ШПАРГАЛКА ============== */
+const CHEAT=[
+ {n:'★',t:'Сводка: автор ↔ модель',table:[
+   ['Гэри Десслер','Определение УЧР (подбор, подготовка, оценка, вознаграждение + трудовые отношения)'],
+   ['Г. Минцберг','10 ролей менеджера (3 группы)'],
+   ['П. Друкер','Менеджмент из «толпы» делает группу; управление по целям (MBO)'],
+   ['Ф. Тейлор','Школа научного управления'],
+   ['А. Файоль','Школа административного управления'],
+   ['Э. Мэйо','Школа человеческих отношений, Хоторнский эксперимент'],
+   ['Д. Ульрих','Модель HR из 3 ролей; 4 роли HR'],
+   ['Трейси и Вирсема','3 ценностные дисциплины'],
+   ['Гарвардская модель','«4С»: Commitment, Competence, Cost-effectiveness, Congruence'],
+   ['AMO-модель','Эффективность = Abilities × Motivation × Opportunities'],
+   ['Маккинси','Модель 7-S; «Война за таланты»'],
+   ['Институт Саратоги','КПЭ HR: Staffing, Efficiency, Equity, Productivity'],
+   ['Дж. Рензулли','Талант = способности выше среднего + творчество + преданность делу'],
+   ['Hay Group / Mercer','Методы грейдирования'],
+   ['Б. Скиннер','«Кнут и пряник» (оперантное научение)'],
+   ['Ф. Герцберг','Двухфакторная теория (гигиенические + мотивирующие)'],
+   ['А. Маслоу','Пирамида потребностей (5 уровней)'],
+   ['Д. МакКлелланд','Власть, достижение, принадлежность'],
+   ['В. Врум','Теория ожиданий (Ожидание × Инструментальность × Валентность)'],
+   ['Дж. Адамс','Теория справедливости'],
+   ['Деси и Райан','Самодетерминация (автономия, компетентность, связанность)'],
+   ['Д. Киркпатрик','4 уровня оценки обучения'],
+   ['Дж. Филипс','ROI обучения (5-й уровень)'],
+   ['Н. Кондратьев','Циклы (волны) технологических укладов']
+ ]},
+ {n:1,t:'Основы УЧР',items:[
+   ['УЧР по Десслеру','подбор, подготовка, оценка, вознаграждение + трудовые отношения'],
+   ['Организация — 3 признака','≥2 человека, ≥1 общая цель, сознательная деятельность'],
+   ['Минцберг','10 ролей: межличностные / информационные / связанные с решениями'],
+   ['Школы','Тейлор (научная) · Файоль (административная) · Мэйо (человеческих отношений) · количественная'],
+   ['Подходы','процессный, системный, ситуативный'],
+   ['5 моделей УП','Рынок труда (инвестбанки) · Человеческий капитал (Япония) · Партнёрская (Зап.Европа) · Академия (Big 4) · Российская']
+ ]},
+ {n:2,t:'Трудовое право',items:[
+   ['Трудовые отношения','возникают с подписания трудового договора'],
+   ['Срочный договор','≤ 5 лет'],
+   ['Цифры','неделя 40 ч · отдых ≥42 ч · обед 30 мин–2 ч · отпуск 28 дней'],
+   ['Сокращение','предупреждение ≥2 месяца + выходное пособие (средний заработок)'],
+   ['Взыскания (Ст.192)','только 3: замечание, выговор, увольнение'],
+   ['Трудовой vs ГПХ','трудовой — соцгарантии + ПВТР; ГПХ — результат, стороны равны, без распорядка'],
+   ['Без испытания','беременные, до 18 лет, молодые специалисты, выборные, переведённые']
+ ]},
+ {n:3,t:'Стратегия УЧР',items:[
+   ['Трейси–Вирсема','опер. эффективность / лидерство в продукте / близость к клиенту'],
+   ['Подходы','Best Fit (IKEA) · Best Practices (Microsoft) · RBV (Apple) · Институциональный (Unilever) · Системный (P&G)'],
+   ['Гарвард','«4С»: Commitment, Competence, Cost-effectiveness, Congruence'],
+   ['AMO','Abilities × Motivation × Opportunities'],
+   ['7-S Маккинси','жёсткие: стратегия/структура/системы; мягкие: стиль/staff/skills/shared values']
+ ]},
+ {n:4,t:'Структура HR-службы',items:[
+   ['Модель Ульриха','Shared Services + Centers of Expertise + HR Business Partners'],
+   ['4 роли HR','стратег. партнёр, администратор, агент изменений, защитник интересов'],
+   ['ССП (BSC)','финансы · клиенты · процессы · обучение и развитие'],
+   ['Институт Саратоги','Staffing, Efficiency, Equity, Productivity'],
+   ['Компетенции','профессиональные, лидерские, личностные, корпоративные']
+ ]},
+ {n:5,t:'Жизненный цикл и подбор',items:[
+   ['5 этапов','найм → адаптация → развитие → мотивация/удержание → выход'],
+   ['4 вида адаптации','профессиональная, социально-психологическая, психофизиологическая, организационно-административная'],
+   ['Роли','Buddy (соц.) · наставник (проф.) · HR (контроль) · руководитель (задачи)'],
+   ['Термины','HR-бренд, EJM (карта пути), EVP (ценностное предложение)'],
+   ['Ошибки интервью','стереотипизация, эффект ореола, вопросы не по компетенциям']
+ ]},
+ {n:6,t:'Оценка персонала',items:[
+   ['3 цели','административная, информационная, мотивационная'],
+   ['360°','руководитель + коллеги + подчинённые + самооценка'],
+   ['180°','руководитель + самооценка'],
+   ['OKR vs КПЭ','OKR НЕ привязаны к бонусам; КПЭ привязаны'],
+   ['SBI','Situation → Behavior → Impact'],
+   ['ИПР','цели по SMART']
+ ]},
+ {n:7,t:'Обучение и развитие',items:[
+   ['Андрагогика','наука об обучении взрослых'],
+   ['Киркпатрик','реакция → усвоение → поведение → результаты'],
+   ['+ROI','5-й уровень — Дж. Филипс'],
+   ['GAP-анализ','разрыв между текущим и желаемым состоянием'],
+   ['КУ vs УЦ','КУ проактивен (стратегия); УЦ реактивен (текущие задачи)']
+ ]},
+ {n:8,t:'Таланты и резерв',items:[
+   ['Таланты vs резерв','таланты — высокий потенциал (все уровни); резерв — преемственность руководителей'],
+   ['Рензулли','способности выше среднего + творчество + преданность'],
+   ['«Война за таланты»','McKinsey'],
+   ['Грейд','оценивается должность, а не человек; методы: Hay Group, Mercer'],
+   ['Резерв','открытый/закрытый, конкурентный/целевой; оценка — 9-box grid']
+ ]},
+ {n:9,t:'Мотивация: теории',items:[
+   ['Определения','потребность → мотив → стимул (внешний) → мотивация (процесс)'],
+   ['Маслоу','5 уровней: физиология→безопасность→социальные→признание→самореализация'],
+   ['Герцберг','гигиенические (не мотивируют) vs мотивирующие'],
+   ['МакКлелланд','власть, достижение, принадлежность'],
+   ['Врум','Ожидание × Инструментальность × Валентность'],
+   ['Адамс','справедливость (сравнение с коллегами)'],
+   ['Деси–Райан','автономия, компетентность, связанность'],
+   ['Скиннер','кнут и пряник']
+ ]},
+ {n:10,t:'Мотивация: практика',items:[
+   ['Материальная','оклад, бонусная, комиссионная, премиальная, опционы/акции'],
+   ['Текучесть','процент увольнений за период'],
+   ['ROI','(Прибыль − Затраты)/Затраты ×100%'],
+   ['Кого удерживать','ключевые → перспективные → эффективные → «балласт»'],
+   ['Причины ухода','оплата, коллектив, руководитель, нет роста, нет признания']
+ ]},
+ {n:11,t:'Цифровизация HR',items:[
+   ['Цифровизация vs автоматизация','цифровизация — комплекс + аналитика + интеграция; автоматизация — отдельные функции'],
+   ['HRIS','система управления персоналом (1С:ЗУП, БОСС-Кадровик)'],
+   ['LMS','система обучения (iSpring, GetCourse)'],
+   ['Big Data','для крупных (1000+); не для малого бизнеса (<300)'],
+   ['Закон','ФЗ-152 — защита персональных данных']
+ ]},
+ {n:12,t:'Тренды HR',items:[
+   ['ESG','Environmental / Social / Governance'],
+   ['Blue vs New Collar','New Collar — технологии БЕЗ высшего образования'],
+   ['Silver Staff','старение рабочей силы; опыт и наставничество'],
+   ['4 поколения','бумеры → X → Y → Z'],
+   ['EX-метрики','eNPS (рекомендация), ESAT (удовлетворённость)'],
+   ['Навыки будущего','адаптивность, системное мышление, EQ, антихрупкость, цифр. грамотность'],
+   ['Профессии будущего','циклы Кондратьева + NBIC-конвергенция'],
+   ['Offboarding','выходное интервью — анализ причин увольнения']
+ ]}
+];
+function renderCheat(){
+  const box=$('#cheatList');box.innerHTML='';
+  CHEAT.forEach((blk,i)=>{
+    const acc=document.createElement('div');acc.className='acc'+(i===0?' open':'');
+    const head=document.createElement('button');head.className='acc-head';
+    head.innerHTML='<span class="acc-num">'+(blk.n==='★'?'★':'Л'+blk.n)+'</span>'+blk.t+'<span class="arr">▸</span>';
+    head.onclick=()=>acc.classList.toggle('open');
+    const body=document.createElement('div');body.className='acc-body';
+    if(blk.table){
+      let h='<table class="tbl"><tr><th>Автор / модель</th><th>Что придумал</th></tr>';
+      blk.table.forEach(r=>h+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>');
+      h+='</table>';body.innerHTML=h;
+    } else {
+      const ul=document.createElement('ul');
+      blk.items.forEach(it=>{const li=document.createElement('li');li.innerHTML='<b>'+it[0]+':</b> '+it[1];ul.appendChild(li);});
+      body.appendChild(ul);
+    }
+    acc.append(head,body);box.appendChild(acc);
+  });
+}
+
+/* ============== ОБЩАЯ СТАТИСТИКА ============== */
+function updateGlobalStat(){
+  const known=Object.values(S.status).filter(v=>v==='know').length;
+  const rev=Object.values(S.status).filter(v=>v==='review').length;
+  $('#globalStat').innerHTML='Карточек: <b>'+CARDS.length+'</b> · вопросов: <b>'+QUIZ.length+'</b><br>знаю: <b>'+known+'</b> · повторить: <b>'+rev+'</b>';
+}
+
+/* ============== INIT ============== */
+buildCardChips();
+rebuildDeck();
+renderCheat();
+updateGlobalStat();
+</script>
+</body>
+</html>
